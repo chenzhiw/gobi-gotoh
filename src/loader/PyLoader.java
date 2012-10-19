@@ -7,7 +7,8 @@ import org.python.util.PythonInterpreter;
  * should take care of reading the pairFile and retrieve the aforementioned
  * pairs from a sequence library file. This implementation is grossly
  * inefficient, and right now it serves as a proof of concept. I needed much
- * less code to achieve the same result, though.
+ * less code to achieve the same result, though. Developement of this class
+ * ceased. See JLoader for the used class.
  * 
  * @author papadopoulos
  * 
@@ -17,8 +18,12 @@ public class PyLoader {
 	private String seqLibFile;
 
 	/**
-	 * this function parses a .pairs file and stores the first two columns of each row, the IDs of the sequences to be aligned
-	 * @param pairFile a file containing at least two columns per row, containing the IDs of sequences that are to be aligned with one another
+	 * this function parses a .pairs file and stores the first two columns of
+	 * each row, the IDs of the sequences to be aligned
+	 * 
+	 * @param pairFile
+	 *            a file containing at least two columns per row, containing the
+	 *            IDs of sequences that are to be aligned with one another
 	 */
 	public void loadPairFile(String pairFile) {
 		PythonInterpreter interp = new PythonInterpreter();

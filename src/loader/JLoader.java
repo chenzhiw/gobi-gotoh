@@ -9,14 +9,23 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 /**
- * 
+ * this class handles all operations that have to do with reading files; it
+ * should take care of reading the pairFile and retrieve the aforementioned
+ * pairs from a sequence library file.
  * @author papadopoulos
  * 
  */
 public class JLoader {
 	private String pairFile;
 	private String seqLibFile;
+	
+	
+	public JLoader(String pairFile, String seqLibFile) {
+		this.pairFile = pairFile;
+		this.seqLibFile = seqLibFile;
+	}
 
+	
 	/**
 	 * this function parses a .pairs file and stores the first two columns of
 	 * each row, the IDs of the sequences to be aligned
@@ -27,7 +36,7 @@ public class JLoader {
 	 * @return a String[][] with each array being a pair of IDs that need to be
 	 *         aligned
 	 */
-	public String[][] loadPairFile(String pairFile) {
+	public String[][] loadPairFile() {
 		String[][] pairList = {};
 		try {
 			FileInputStream fstream = new FileInputStream(pairFile);
@@ -76,5 +85,11 @@ public class JLoader {
 		} finally {
 			is.close();
 		}
+	}
+	
+	
+	public String[] retrievePair(String seq1, String seq2) {
+		
+		return null;
 	}
 }
