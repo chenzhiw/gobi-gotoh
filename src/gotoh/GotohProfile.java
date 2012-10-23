@@ -3,7 +3,7 @@ import resc.Matrix;
 
 
 public class GotohProfile {
-	private String matrixName, pairs, seqlib;
+	private String matrixName, pairfile, seqlibfile;
 	private double gopen, gextend;
 	private String mode, printmatrices;
 	private boolean check, printali;
@@ -41,19 +41,19 @@ public class GotohProfile {
 	}
 
 	public String getPairs() {
-		return pairs;
+		return pairfile;
 	}
 
 	public void setPairs(String pairs) {
-		this.pairs = pairs;
+		this.pairfile = pairs;
 	}
 
 	public String getSeqlib() {
-		return seqlib;
+		return seqlibfile;
 	}
 
 	public void setSeqlib(String seqlib) {
-		this.seqlib = seqlib;
+		this.seqlibfile = seqlib;
 	}
 
 	public double getGopen() {

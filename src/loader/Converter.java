@@ -2,12 +2,10 @@ package loader;
 
 import static resc.Aa.*;
 
-public class Converter {
-	
+public class Converter {	
 	
 	
 	public int[] convertSeq(String seq) {
-		seq = seq.split(":")[1];
 		int[] result = new int[seq.length()];
 		int i;
 		char c;

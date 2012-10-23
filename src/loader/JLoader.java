@@ -13,7 +13,7 @@ import java.io.InputStreamReader;
  * should take care of reading the pairFile and retrieve the aforementioned
  * pairs from a sequence library file.
  * 
- * @author papadopoulos
+ * @author nikos papadopoulos
  * 
  */
 public class JLoader {
