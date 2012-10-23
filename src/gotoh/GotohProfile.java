@@ -3,14 +3,17 @@ import resc.Matrix;
 
 
 public class GotohProfile {
-	private String matrix, pairs, seqlib;
+	private String matrixName, pairs, seqlib;
 	private double gopen, gextend;
 	private String mode, printmatrices;
 	private boolean check, printali;
+	public double[][] matrix;
 	
 	// defaults!!
 	public GotohProfile() {
-		matrix = "dayhoff";
+		matrixName = "dayhoff";
+		matrix = new double[21][21];
+		this.matrix = (double[][])resc.Matrix.dayhoff.clone();
 		gopen = -12;
 		gextend = -1;
 		mode = "freeshift";
@@ -19,12 +22,22 @@ public class GotohProfile {
 		check = false;
 	}
 
-	public String getMatrix() {
-		return matrix;
+	public String getMatrixName() {
+		return matrixName;
 	}
 
-	public void setMatrix(String matrix) {
-		this.matrix = matrix;
+	public void setMatrix(String matrixName) {
+		this.matrixName = matrixName;
+		if(matrixName.equals("dayhoff"))
+			this.matrix = (double[][])resc.Matrix.dayhoff.clone();
+		else if(matrixName.equals("threader"))
+			this.matrix = (double[][])resc.Matrix.threader.clone();
+		else if(matrixName.equals("blakeCohen"))
+			this.matrix = (double[][])resc.Matrix.blakeCohen.clone();
+		else if(matrixName.equals("blosum50"))
+			this.matrix = (double[][])resc.Matrix.blosum50.clone();
+		else
+			this.matrix = (double[][])resc.Matrix.pam250.clone();
 	}
 
 	public String getPairs() {
@@ -91,5 +104,11 @@ public class GotohProfile {
 		this.printali = printali;
 	}
 	
+	public double getMatrixScore(int x, int y) {
+		if(x < y)
+			return matrix[y][x];
+		else
+			return matrix[x][y];
+	}	
 	
 }
