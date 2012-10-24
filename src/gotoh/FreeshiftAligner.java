@@ -1,6 +1,6 @@
 package gotoh;
 
-import static resc.Aa.REVERSE;
+import static rescources.Aa.REVERSE;
 
 import java.util.LinkedList;
 
@@ -76,8 +76,10 @@ public class FreeshiftAligner implements Aligner {
 				int k = 1;
 				while (score[x - k][y] + profile.getGextend() * k
 						+ profile.getGopen() != score[x][y]) {
-					res[0] = x - k;
-					tracebackList.push(res);
+					int[] resn = { x - k, y };
+					tracebackList.push(resn);
+					if (x - k == 0)
+						break;
 					k++;
 				}
 				trace(x - k, y);
@@ -85,8 +87,10 @@ public class FreeshiftAligner implements Aligner {
 				int k = 1;
 				while (score[x][y - k] + profile.getGextend() * k
 						+ profile.getGopen() != score[x][y]) {
-					res[1] = y - k;
-					tracebackList.push(res);
+					int[] resn = { x, y - k };
+					tracebackList.push(resn);
+					if (y - k == 0)
+						break;
 					k++;
 				}
 				trace(x, y - k);
@@ -114,40 +118,39 @@ public class FreeshiftAligner implements Aligner {
 				result[1] += Character.toString(REVERSE[(char) seq2[i - 1]]);
 				result[0] += "-";
 			}
-			result[0] += Character.toString(REVERSE[(char) seq1[prev[0] - 1]]);
-			result[1] += Character.toString(REVERSE[(char) seq2[prev[1] - 1]]);
-			while (!tracebackList.isEmpty()) {
-				temp = tracebackList.pop();
-				if (temp[0] == prev[0]) {
-					result[0] += "-";
-					result[1] += Character
-							.toString(REVERSE[(char) seq2[temp[1] - 1]]);
-				} else if (temp[1] == prev[1]) {
-					result[0] += Character
-							.toString(REVERSE[(char) seq1[temp[0] - 1]]);
-					result[1] += "-";
-				} else {
-					result[0] += Character
-							.toString(REVERSE[(char) seq1[temp[0] - 1]]);
-					result[1] += Character
-							.toString(REVERSE[(char) seq2[temp[1] - 1]]);
-				}
-				prev = temp;
-			}
-			// now we are at the end of the freeshift; it remains to recover the
-			// portion of the alignment that is parallel with the y axis
-			if (prev[0] < prev[1]) {
-				for (int i = prev[0]; i <= seq1.length; i++) {
-					result[0] += Character
-							.toString(REVERSE[(char) seq1[i - 1]]);
-					result[1] += "-";
-				}
+		}
+		temp = tracebackList.pop();
+		result[0] += Character.toString(REVERSE[(char) seq1[temp[0] - 1]]);
+		result[1] += Character.toString(REVERSE[(char) seq2[temp[1] - 1]]);
+		while (!tracebackList.isEmpty()) {
+			temp = tracebackList.pop();
+			if (temp[0] == prev[0]) {
+				result[0] += "-";
+				result[1] += Character
+						.toString(REVERSE[(char) seq2[temp[1] - 1]]);
+			} else if (temp[1] == prev[1]) {
+				result[0] += Character
+						.toString(REVERSE[(char) seq1[temp[0] - 1]]);
+				result[1] += "-";
 			} else {
-				for (int i = prev[1]; i <= seq2.length; i++) {
-					result[1] += Character
-							.toString(REVERSE[(char) seq2[i - 1]]);
-					result[0] += "-";
-				}
+				result[0] += Character
+						.toString(REVERSE[(char) seq1[temp[0] - 1]]);
+				result[1] += Character
+						.toString(REVERSE[(char) seq2[temp[1] - 1]]);
+			}
+			prev = temp;
+		}
+		// now we are at the end of the freeshift; it remains to recover the
+		// portion of the alignment that is parallel with the y axis
+		if (prev[0] < prev[1]) {
+			for (int i = prev[0]; i <= seq1.length; i++) {
+				result[0] += Character.toString(REVERSE[(char) seq1[i - 1]]);
+				result[1] += "-";
+			}
+		} else {
+			for (int i = prev[1]; i <= seq2.length; i++) {
+				result[1] += Character.toString(REVERSE[(char) seq2[i - 1]]);
+				result[0] += "-";
 			}
 		}
 		return result;
@@ -172,7 +175,8 @@ public class FreeshiftAligner implements Aligner {
 		sresult = interpretTraceback();
 
 		GotohAnswer result = new GotohAnswer(seq1ID, seq2ID, sresult[0],
-				sresult[1], max[2]);
+				sresult[1], max[2], profile);
+//		System.out.println(seq1ID + " " + seq2ID + " " + max[2]);
 		return result;
 	}
 }

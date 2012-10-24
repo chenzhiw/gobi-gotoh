@@ -1,5 +1,5 @@
 package gotoh;
-import resc.Matrix;
+import rescources.Matrix;
 
 
 public class GotohProfile {
@@ -9,16 +9,17 @@ public class GotohProfile {
 	private boolean check, printali;
 	public double[][] matrix;
 	
+
 	// defaults!!
 	public GotohProfile() {
 		matrixName = "dayhoff";
 		matrix = new double[21][21];
-		this.matrix = (double[][])resc.Matrix.dayhoff.clone();
+		this.matrix = (double[][])rescources.Matrix.dayhoff.clone();
 		gopen = -12;
 		gextend = -1;
 		mode = "freeshift";
 		printali = false;
-		printmatrices = "txt";
+		printmatrices = "";
 		check = false;
 	}
 
@@ -29,15 +30,15 @@ public class GotohProfile {
 	public void setMatrix(String matrixName) {
 		this.matrixName = matrixName;
 		if(matrixName.equals("dayhoff"))
-			this.matrix = (double[][])resc.Matrix.dayhoff.clone();
+			this.matrix = (double[][])rescources.Matrix.dayhoff.clone();
 		else if(matrixName.equals("threader"))
-			this.matrix = (double[][])resc.Matrix.threader.clone();
+			this.matrix = (double[][])rescources.Matrix.threader.clone();
 		else if(matrixName.equals("blakeCohen"))
-			this.matrix = (double[][])resc.Matrix.blakeCohen.clone();
+			this.matrix = (double[][])rescources.Matrix.blakeCohen.clone();
 		else if(matrixName.equals("blosum50"))
-			this.matrix = (double[][])resc.Matrix.blosum50.clone();
+			this.matrix = (double[][])rescources.Matrix.blosum50.clone();
 		else
-			this.matrix = (double[][])resc.Matrix.pam250.clone();
+			this.matrix = (double[][])rescources.Matrix.pam250.clone();
 	}
 
 	public String getPairs() {
@@ -104,6 +105,10 @@ public class GotohProfile {
 		this.printali = printali;
 	}
 	
+	public boolean getPrintali() {
+		return this.printali;
+	}
+	
 	public double getMatrixScore(int x, int y) {
 		if(x < y)
 			return matrix[y][x];
@@ -111,4 +116,7 @@ public class GotohProfile {
 			return matrix[x][y];
 	}	
 	
+	public double[][] getMatrix() {
+		return matrix;
+	}
 }

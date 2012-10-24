@@ -19,6 +19,9 @@ import java.io.InputStreamReader;
 public class JLoader {
 	private String pairFile;
 	private String seqLibFile;
+	public String[][] pairs;
+	public String[] sequences;
+	private int pairLength;
 	private boolean ordered = true;
 
 	public JLoader(String pairFile, String seqLibFile) {
@@ -37,25 +40,25 @@ public class JLoader {
 	 *         aligned
 	 */
 	public String[][] loadPairFile() {
-		String[][] pairList = {};
 		try {
 			FileInputStream fstream = new FileInputStream(pairFile);
 			DataInputStream in = new DataInputStream(fstream);
 			BufferedReader br = new BufferedReader(new InputStreamReader(in));
 			String strLine;
-			int listLength = countLines(pairFile);
-			pairList = new String[listLength][2];
+			pairLength = countLines(pairFile);
+			pairs = new String[pairLength][2];
 			int i = 0;
 			while ((strLine = br.readLine()) != null) {
-				pairList[i][0] = strLine.split(" ")[0];
-				pairList[i][1] = strLine.split(" ")[1];
+				pairs[i][0] = strLine.split(" ")[0];
+				pairs[i][1] = strLine.split(" ")[1];
 				i++;
 			}
 			in.close();
+			return pairs;
 		} catch (Exception e) {// Catch exception if any
-			System.err.println("Error: " + e.getMessage());
+			System.err.println("Error: The pairfile has this to say: " + e.getMessage());
 		}
-		return pairList;
+		return null;
 	}
 
 	/**
@@ -123,14 +126,17 @@ public class JLoader {
 			int mid = (min + max) / 2;
 			assert (mid < max);
 			// ah, the compare method for strings... so nice to have libraries!
-			if (seqList[mid].substring(0, 6).compareTo(query) < 0)
-				min = mid + 1;
-			else
+			int comp = query.compareToIgnoreCase(seqList[mid]);
+			if (comp < 0)
 				max = mid;
+			else if (comp == 0)
+				return seqList[mid];
+			else
+				min = mid + 1;
 		}
-		if ((max == min) && (seqList[min - 1].startsWith(query))) {
-			System.out.println("Query found at position " + min + ":"
-					+ seqList[min - 1]);
+		if ((max == min) && (seqList[min].startsWith(query))) {
+//			System.out.println("Query found at position " + min + ":"
+//					+ seqList[min]);
 			return seqList[min];
 		} else
 			System.out.println("Query " + query + " not found.");
@@ -174,10 +180,10 @@ public class JLoader {
 	 * @return an array with sequences at the cells
 	 * @throws IOException
 	 */
-	public String[] loadSeqLibFile(String file) throws IOException {
-		int lines = this.countLines(file);
-		String[] seqList = new String[lines];
-		FileInputStream fstream = new FileInputStream(file);
+	public String[] loadSeqLibFile() throws IOException {
+		int lines = this.countLines(seqLibFile);
+		sequences = new String[lines];
+		FileInputStream fstream = new FileInputStream(seqLibFile);
 		DataInputStream in = new DataInputStream(fstream);
 		BufferedReader br = new BufferedReader(new InputStreamReader(in));
 		String strLine = "";
@@ -185,16 +191,16 @@ public class JLoader {
 		int i = 0;
 		// save each sequence at a large list
 		while ((strLine = br.readLine()) != null) {
-			if (ordered)
-				if (strLine.subSequence(0, 6).toString().compareTo(prev) < 0)
-					ordered = false;
-			seqList[i] = strLine;
+//			if (ordered)
+//				if (strLine.subSequence(0, 6).toString().compareTo(prev) < 0)
+//					ordered = false;
+			sequences[i] = strLine;
 			prev = strLine;
 			i++;
 		}
 		// remember to close the stream!
 		in.close();
-		return seqList;
+		return sequences;
 	}
 
 	/**
@@ -220,6 +226,11 @@ public class JLoader {
 			seqList[1] = retrieveSeqMan(seq2, seqList);
 		}
 		return seqList;
+	}
+	
+	
+	public int getPairLength() {
+		return pairLength;
 	}
 
 }

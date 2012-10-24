@@ -1,6 +1,6 @@
 package loader;
 
-import static resc.Aa.*;
+import static rescources.Aa.*;
 
 public class Converter {	
 	

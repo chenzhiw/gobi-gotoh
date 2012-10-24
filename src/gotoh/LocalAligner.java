@@ -1,6 +1,6 @@
 package gotoh;
 
-import static resc.Aa.REVERSE;
+import static rescources.Aa.REVERSE;
 
 import java.util.LinkedList;
 
@@ -149,7 +149,8 @@ public class LocalAligner implements Aligner {
 		sresult = interpretTraceback();
 
 		GotohAnswer result = new GotohAnswer(seq1ID, seq2ID, sresult[0],
-				sresult[1], max[2]);
+				sresult[1], max[2], profile);
+//		System.out.println(seq1ID + " " + seq2ID + " " + max[2]);
 		return result;
 	}
 }
