@@ -56,7 +56,7 @@ public class LocalAligner implements Aligner {
 				score[x][y] = Math.max(Math.max(temp, 0),
 						Math.max(ins[x][y], del[x][y]));
 				// save the max; we need that for traceback (?)
-				if (x == seq1.length && score[x][y] >= max[2]) {
+				if (score[x][y] >= max[2]) {
 					max[0] = x;
 					max[1] = y;
 					max[2] = score[x][y];
@@ -66,7 +66,7 @@ public class LocalAligner implements Aligner {
 	}
 
 	public void trace(int x, int y) {
-		if (y == 0) {
+		if (score[x][y] == 0) {
 
 		} else {
 			int[] res = { x, y };
@@ -86,15 +86,21 @@ public class LocalAligner implements Aligner {
 		result[0] = result[1] = "";
 		int[] temp = new int[2];
 		int[] prev = new int[2];
-		prev = tracebackList.pop();
-		// this element has y=0, so I have to align every x before
-		// prev[0],prev[1] with gaps
-		for (int i = 1; i < prev[0]; i++) {
+		temp = tracebackList.pop();
+		// the traceback should only contain a limited number of elements. For
+		// all sequence positions before prev[0] align seq1 with "-" and then
+		// seq2 with "-"
+		for (int i = 1; i < temp[0]; i++) {
 			result[0] += Character.toString(REVERSE[(char) seq1[i - 1]]);
 			result[1] += "-";
 		}
-		result[0] += Character.toString(REVERSE[(char) seq1[prev[0]-1]]);
-		result[1] += Character.toString(REVERSE[(char) seq2[prev[1]-1]]);
+		for (int i = 1; i < temp[1]; i++) {
+			result[1] += Character.toString(REVERSE[(char) seq2[i - 1]]);
+			result[0] += "-";
+		}
+		prev = temp;
+		result[0] += Character.toString(REVERSE[(char) seq1[prev[0] - 1]]);
+		result[1] += Character.toString(REVERSE[(char) seq2[prev[1] - 1]]);
 		while (!tracebackList.isEmpty()) {
 			temp = tracebackList.pop();
 			if (temp[0] == prev[0]) {
@@ -113,12 +119,14 @@ public class LocalAligner implements Aligner {
 			}
 			prev = temp;
 		}
-		// now we are at the end of the freeshift; it remains to recover the
-		// portion of the alignment that is parallel with the y axis
-		for(int i = prev[1]; i <= seq2.length; i++) {
-			result[1] += Character.toString(REVERSE[(char) seq2[i - 1]]);
-			result[0] += "-";
+		for (int i = prev[0]; i < seq1.length; i++) {
+			result[0] += Character.toString(REVERSE[(char) seq1[i]]);
+			result[1] += "-";
 		}
+		for (int i = prev[1]; i < seq2.length; i++) {
+			result[1] += Character.toString(REVERSE[(char) seq2[i]]);
+			result[0] += "-";
+		}		
 		return result;
 	}
 
