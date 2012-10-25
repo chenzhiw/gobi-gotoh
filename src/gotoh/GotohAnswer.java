@@ -8,7 +8,7 @@ public class GotohAnswer {
 	private GotohProfile prof;
 
 	public GotohAnswer() {
-	
+
 	}
 
 	public GotohAnswer(String seq1id, String seq2Id, String seq1, String seq2,
@@ -17,7 +17,7 @@ public class GotohAnswer {
 		this.seq2ID = seq2Id;
 		this.seq1 = seq1;
 		this.seq2 = seq2;
-		this.score = score;
+		this.score = Math.round(score * 1000.0) / 1000.0;
 		this.prof = prof;
 	}
 
