@@ -1,10 +1,10 @@
 package gotoh;
 
-import static rescources.Aa.REVERSE;
+import static resources.Aa.REVERSE;
 
 import java.util.LinkedList;
 
-public class FreeshiftAligner implements Aligner {
+public class FreeshiftAligner extends Aligner {
 	private GotohProfile profile;
 	private int[] seq1, seq2;
 	public double[][] score;

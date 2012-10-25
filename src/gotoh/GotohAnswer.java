@@ -1,6 +1,6 @@
 package gotoh;
 
-import static rescources.Aa.*;
+import static resources.Aa.*;
 
 public class GotohAnswer {
 	private String seq1ID, seq2ID, seq1, seq2;

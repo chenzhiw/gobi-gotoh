@@ -1,6 +1,10 @@
 package gotoh;
 
-public interface Aligner {
+public abstract class Aligner {
+	
+	public Aligner() {
+		
+	}
 
 	/**
 	 * depending on the mode the initialization of the score matrix is
@@ -8,20 +12,32 @@ public interface Aligner {
 	 * are all set to 0; for a global alignment one needs to apply the gap
 	 * function.
 	 */
-	public void initialize();
+	public void initialize() {
+		
+	}
 
 	/**
 	 * this function aligns the two sequences
 	 */
-	public void align();
+	public void align() {
+		
+	}
 
-	public void trace(int x, int y);
+	public void trace(int x, int y) {
+		
+	}
 
 	@Deprecated
-	public void printAlignment();
+	public void printAlignment() {
+		
+	}
 	
-	public String[] interpretTraceback();
+	public String[] interpretTraceback() {
+		return null;
+	}
 	
-	public GotohAnswer alignPair();
+	public GotohAnswer alignPair() {
+		return null;
+	}
 	
 }

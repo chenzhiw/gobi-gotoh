@@ -1,6 +1,9 @@
+import gotoh.Aligner;
+import gotoh.FreeshiftAligner;
 import gotoh.GlobalAligner;
 import gotoh.GotohAnswer;
 import gotoh.GotohProfile;
+import gotoh.LocalAligner;
 
 import java.io.IOException;
 
@@ -77,16 +80,13 @@ public class Main {
 		}
 		if (options.has("printmatrices")) {
 			prof.setPrintmatrices((String) options.valueOf("printmatrices"));
-		}
-		else {
+		} else {
 			prof.setPrintmatrices("");
 		}
-		
-		
+
 		JLoader loader = new JLoader(prof.getPairs(), prof.getSeqlib());
 		loader.loadPairFile();
 		loader.loadSeqLibFile();
-
 		for (int i = 0; i < loader.getPairLength(); i++) {
 			sequ1 = loader.retrieveSeqBin(loader.pairs[i][0], loader.sequences)
 					.split(":");
@@ -94,14 +94,29 @@ public class Main {
 					.split(":");
 			int[] seq1 = c.convertSeq(sequ1[1]);
 			int[] seq2 = c.convertSeq(sequ2[1]);
-			GlobalAligner al = new GlobalAligner(prof, seq1, seq2, sequ1[0],
-					sequ2[0]);
-			GotohAnswer ga = new GotohAnswer();
-			ga = al.alignPair();
-			ga.printAll();
+			if (prof.getMode().equals("global")) {
+				GlobalAligner al = new GlobalAligner(prof, seq1, seq2,
+						sequ1[0], sequ2[0]);
+				GotohAnswer ga = new GotohAnswer();
+				ga = al.alignPair();
+				ga.printAll();
+			} else if (prof.getMode().equals("local")) {
+				LocalAligner al = new LocalAligner(prof, seq1, seq2, sequ1[0],
+						sequ2[0]);
+				GotohAnswer ga = new GotohAnswer();
+				ga = al.alignPair();
+				ga.printAll();
+			} else {
+				FreeshiftAligner al = new FreeshiftAligner(prof, seq1, seq2,
+						sequ1[0], sequ2[0]);
+				GotohAnswer ga = new GotohAnswer();
+				ga = al.alignPair();
+				ga.printAll();
+			}
+			
 		}
-		
-		if(prof.getPrintmatrices().equals("html")) {
+
+		if (prof.getPrintmatrices().equals("html")) {
 			System.out.println("</body>");
 			System.out.println("</html>");
 		}

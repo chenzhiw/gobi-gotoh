@@ -1,13 +1,10 @@
 package gotoh;
 
-import static rescources.Aa.REVERSE;
+import static resources.Aa.REVERSE;
 
 import java.util.LinkedList;
 
-import loader.Converter;
-import loader.JLoader;
-
-public class GlobalAligner implements Aligner {
+public class GlobalAligner extends Aligner {
 	private GotohProfile profile;
 	private String seq1ID, seq2ID;
 	private int[] seq1, seq2;

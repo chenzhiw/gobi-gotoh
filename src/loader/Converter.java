@@ -1,6 +1,6 @@
 package loader;
 
-import static rescources.Aa.*;
+import static resources.Aa.*;
 
 public class Converter {	
 	
