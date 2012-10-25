@@ -1,4 +1,4 @@
-package resc;
+package resources;
 
 public class Matrix {
 	/*

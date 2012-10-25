@@ -1,4 +1,4 @@
-package resc;
+package resources;
 
 public class Aa {
 	public static final int A = 0, R = 1, N = 2, D = 3, C = 4, Q = 5, E = 6,
