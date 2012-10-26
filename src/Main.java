@@ -1,4 +1,3 @@
-import gotoh.Aligner;
 import gotoh.FreeshiftAligner;
 import gotoh.GlobalAligner;
 import gotoh.GotohAnswer;
@@ -11,6 +10,7 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import loader.Converter;
 import loader.JLoader;
+import resources.Matrix;
 
 public class Main {
 	public static void main(String[] args) throws IOException {
@@ -94,32 +94,40 @@ public class Main {
 					.split(":");
 			int[] seq1 = c.convertSeq(sequ1[1]);
 			int[] seq2 = c.convertSeq(sequ2[1]);
+			
+			if (prof.getPrintmatrices().equals("txt")) {
+				 Matrix.printMatriceTxt(prof.getMatrix());
+			} else if (prof.getPrintmatrices().equals("html")) {
+				Matrix.printMatriceHtml(prof.getMatrix());
+			}
+			
 			if (prof.getMode().equals("global")) {
 				GlobalAligner al = new GlobalAligner(prof, seq1, seq2,
 						sequ1[0], sequ2[0]);
 				GotohAnswer ga = new GotohAnswer();
 				ga = al.alignPair();
-				ga.printAll();
+				ga.printAlignment();
 			} else if (prof.getMode().equals("local")) {
 				LocalAligner al = new LocalAligner(prof, seq1, seq2, sequ1[0],
 						sequ2[0]);
 				GotohAnswer ga = new GotohAnswer();
 				ga = al.alignPair();
-				ga.printAll();
+				ga.printAlignment();
 			} else {
 				FreeshiftAligner al = new FreeshiftAligner(prof, seq1, seq2,
 						sequ1[0], sequ2[0]);
 				GotohAnswer ga = new GotohAnswer();
 				ga = al.alignPair();
-				ga.printAll();
+				ga.printAlignment();
 			}
 			
 		}
-
 		if (prof.getPrintmatrices().equals("html")) {
 			System.out.println("</body>");
 			System.out.println("</html>");
 		}
+
+		
 	}
 
 }

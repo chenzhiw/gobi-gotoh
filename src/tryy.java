@@ -24,7 +24,7 @@ public class tryy {
 				sequ2[0]);
 		GotohAnswer ga = new GotohAnswer();
 		ga = al.alignPair();
-		ga.printAll();
+//		ga.printAll();
 	}
 
 }

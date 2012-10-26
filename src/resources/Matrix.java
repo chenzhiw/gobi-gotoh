@@ -1,5 +1,7 @@
 package resources;
 
+import static resources.Aa.REVERSE;
+
 public class Matrix {
 	/*
 	 * remember that most matrices are not completely full. Remember to 
@@ -156,4 +158,49 @@ public class Matrix {
 					0, 10 },
 			{ 0, -2, -2, -2, -2, -2, -2, -1, -2, 4, 2, -2, 2, -1, -1, -1, 0,
 					-6, -2, 4 } };
+	
+	public static void printMatriceTxt(double[][] matrix) {
+		for (int i = 0; i < 20; i++)
+			System.out.print("\t" + REVERSE[(char) i]);
+		System.out.println();
+		for (int x = 0; x < 20; x++) {
+			for (int y = -1; y <= x; y++) {
+				if (y == -1) {
+					System.out.print(REVERSE[(char) x] + "\t");
+					y++;
+				}
+				System.out.print(matrix[x][y] + "\t");
+			}
+			System.out.println();
+		}
+	}
+	
+	
+	public static void printMatriceHtml(double[][] matrix) {
+		System.out.println("<!DOCTYPE html PUBLIC \"...\">");
+		System.out.println("<html>");
+		System.out.println("\t<head>");
+		System.out.println("&nbsp;" + "&nbsp;" + "&nbsp;" + "&nbsp;"
+				+ "</head>");
+		System.out
+				.println("&nbsp;" + "&nbsp;" + "&nbsp;" + "&nbsp;" + "<body>");
+
+		for (int i = 0; i < 20; i++)
+			System.out.print("<code>" + "&nbsp;" + "&nbsp;" + "&nbsp;"
+					+ "&nbsp;" + REVERSE[(char) i]);
+		System.out.println("</code><br>");
+		for (int x = 0; x < 20; x++) {
+			System.out.print("<code>");
+			for (int y = -1; y <= x; y++) {
+				if (y == -1) {
+					System.out.print("<code>" + REVERSE[(char) x] + "&nbsp;"
+							+ "&nbsp;" + "&nbsp;" + "&nbsp;");
+					x++;
+				}
+				System.out.print(matrix[x][y] + "&nbsp;" + "&nbsp;"
+						+ "&nbsp;" + "&nbsp;");
+			}
+			System.out.println("</code><br>");
+		}
+	}
 }

@@ -70,27 +70,5 @@ public class GotohAnswer {
 			System.out.println(seq1ID + " " + seq2ID + " " + score);
 		}
 	}
-
-	public void printMatriceTxt() {
-		for (int i = 0; i < 21; i++)
-			System.out.print("\t" + REVERSE[(char) i]);
-		for (int j = 0; j < 21; j++) {
-			for (int i = -1; i <= j; i++) {
-				if (i == -1) {
-					System.out.print(REVERSE[(char) i] + "\t");
-					continue;
-				}
-				System.out.print(prof.getMatrix()[i][j] + "\t");
-			}
-			System.out.println();
-		}
-	}
-
-	public void printAll() {
-		if (prof.getPrintmatrices().equals("")) {
-			printAlignment();
-		} else if (prof.getPrintmatrices().equals("txt")) {
-			printMatriceTxt();
-		}
-	}
+	
 }
