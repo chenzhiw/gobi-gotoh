@@ -9,6 +9,7 @@ public class FreeshiftAligner extends Aligner {
 	private int[] seq1, seq2;
 	public double[][] score;
 	private double[][] ins, del;
+	private double checkScore = 0;
 	double[] max = { 0, 0, 0 };
 	private LinkedList<int[]> tracebackList;
 	private String seq1ID, seq2ID;
@@ -71,12 +72,15 @@ public class FreeshiftAligner extends Aligner {
 
 		} else {
 			int[] res = { x, y };
+			checkScore += profile.getMatrixScore(seq1[x], seq2[y]);
 			tracebackList.push(res);
 			if (score[x][y] == ins[x][y]) {
 				int k = 1;
 				while (score[x - k][y] + profile.getGextend() * k
 						+ profile.getGopen() != score[x][y]) {
 					int[] resn = { x - k, y };
+					checkScore += profile.getMatrixScore(seq1[x - k], seq2[y])
+							+ profile.getGextend() * k + profile.getGopen();
 					tracebackList.push(resn);
 					if (x - k == 0)
 						break;
@@ -88,6 +92,8 @@ public class FreeshiftAligner extends Aligner {
 				while (score[x][y - k] + profile.getGextend() * k
 						+ profile.getGopen() != score[x][y]) {
 					int[] resn = { x, y - k };
+					checkScore += profile.getMatrixScore(seq1[x], seq2[y - k])
+							+ profile.getGextend() * k + profile.getGopen();
 					tracebackList.push(resn);
 					if (y - k == 0)
 						break;
@@ -176,7 +182,11 @@ public class FreeshiftAligner extends Aligner {
 
 		GotohAnswer result = new GotohAnswer(seq1ID, seq2ID, sresult[0],
 				sresult[1], max[2], profile);
-//		System.out.println(seq1ID + " " + seq2ID + " " + max[2]);
+		// System.out.println(seq1ID + " " + seq2ID + " " + max[2]);
 		return result;
+	}
+
+	public double getCheckScore() {
+		return this.checkScore;
 	}
 }

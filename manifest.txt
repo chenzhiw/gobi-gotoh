@@ -1,0 +1,2 @@
+Main-Class: Main
+Class-Path: ../lib/jopt-simple-4.3-sources.jar ../lib/jopt-simple-4.3.jar

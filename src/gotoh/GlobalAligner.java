@@ -9,6 +9,7 @@ public class GlobalAligner extends Aligner {
 	private String seq1ID, seq2ID;
 	private int[] seq1, seq2;
 	public double[][] score;
+	private double checkScore = 0;
 	private double[][] ins, del;
 	private LinkedList<int[]> tracebackList;
 
@@ -67,10 +68,16 @@ public class GlobalAligner extends Aligner {
 							* (k - 1) + profile.getGopen();
 					if (isInEpsilon(diff, score[x][y]) && k < y) {
 						int[] res = { x - k, y };
+						checkScore += profile.getMatrixScore(seq1[x - k], seq2[y])
+								+ profile.getGextend() * (k - 1)
+								+ profile.getGopen();
 						tracebackList.push(res);
 						k++;
 					} else {
 						int[] res = { x - k, y };
+						checkScore += profile.getMatrixScore(seq1[x - k], seq2[y])
+								+ profile.getGextend() * (k - 1)
+								+ profile.getGopen();
 						tracebackList.push(res);
 						found = true;
 						x -= k;
@@ -86,10 +93,16 @@ public class GlobalAligner extends Aligner {
 							* (k - 1) + profile.getGopen();
 					if (isInEpsilon(diff, score[x][y]) && k < x) {
 						int[] res = { x, y - k };
+						checkScore += profile.getMatrixScore(seq1[x], seq2[y - k])
+								+ profile.getGextend() * (k - 1)
+								+ profile.getGopen();
 						tracebackList.push(res);
 						k++;
 					} else {
 						int[] res = { x, y - k };
+						checkScore += profile.getMatrixScore(seq1[x], seq2[y - k])
+								+ profile.getGextend() * (k - 1)
+								+ profile.getGopen();
 						tracebackList.push(res);
 						found = true;
 						y -= k;
@@ -98,6 +111,7 @@ public class GlobalAligner extends Aligner {
 				}
 			} else {// that means we came from score[x-1][y-1]
 				int[] res = { x - 1, y - 1 };
+				checkScore += profile.getMatrixScore(seq1[x - 1], seq2[y - 1]);
 				tracebackList.push(res);
 				x--;
 				y--;
@@ -172,7 +186,7 @@ public class GlobalAligner extends Aligner {
 	public GotohAnswer alignPair() {
 		initialize();
 		align();
-		trace(seq1.length, seq2.length);
+		trace(seq1.length - 1, seq2.length - 1);
 		String[] sresult = new String[2];
 		// while (!tracebackList.isEmpty()) {
 		// int[] p = new int[2];
@@ -196,5 +210,9 @@ public class GlobalAligner extends Aligner {
 
 	private static boolean isInEpsilon(double a, double b) {
 		return (a > (b - epsilon)) && (a < (b + epsilon));
+	}
+
+	private double getCheck() {
+		return this.checkScore;
 	}
 }

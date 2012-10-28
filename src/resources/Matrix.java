@@ -183,24 +183,21 @@ public class Matrix {
 		System.out.println("&nbsp;" + "&nbsp;" + "&nbsp;" + "&nbsp;"
 				+ "</head>");
 		System.out
-				.println("&nbsp;" + "&nbsp;" + "&nbsp;" + "&nbsp;" + "<body>");
-
+				.println("&nbsp;" + "&nbsp;" + "&nbsp;" + "&nbsp;" + "<body>" + "<code>");
+		System.out.println("<table> <tr> <td> / </td>");
 		for (int i = 0; i < 20; i++)
-			System.out.print("<code>" + "&nbsp;" + "&nbsp;" + "&nbsp;"
-					+ "&nbsp;" + REVERSE[(char) i]);
-		System.out.println("</code><br>");
+			System.out.print("<td>" + REVERSE[(char) i] + "</td>");
+		System.out.println("</tr><br>");
 		for (int x = 0; x < 20; x++) {
-			System.out.print("<code>");
+			System.out.print("<tr>");
 			for (int y = -1; y <= x; y++) {
 				if (y == -1) {
-					System.out.print("<code>" + REVERSE[(char) x] + "&nbsp;"
-							+ "&nbsp;" + "&nbsp;" + "&nbsp;");
-					x++;
+					System.out.print("<td>" + REVERSE[(char) x] +"</td>");
+					y++;
 				}
-				System.out.print(matrix[x][y] + "&nbsp;" + "&nbsp;"
-						+ "&nbsp;" + "&nbsp;");
+				System.out.print("<td>" + matrix[x][y] + "</td>");
 			}
-			System.out.println("</code><br>");
 		}
+		System.out.println("</code><br>");
 	}
 }

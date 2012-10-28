@@ -2,6 +2,10 @@ package gotoh;
 
 import static resources.Aa.*;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.Locale;
+
 public class GotohAnswer {
 	private String seq1ID, seq2ID, seq1, seq2;
 	private double score;
@@ -62,13 +66,27 @@ public class GotohAnswer {
 	}
 
 	public void printAlignment() {
-		if (prof.getPrintali()) {
-			System.out.println(">" + seq1ID + " " + seq2ID + " " + score);
-			System.out.println(seq1ID + ": " + seq1);
-			System.out.println(seq2ID + ": " + seq2);
-		} else {
-			System.out.println(seq1ID + " " + seq2ID + " " + score);
+		NumberFormat nf = NumberFormat.getNumberInstance(Locale.ENGLISH);
+		DecimalFormat df = (DecimalFormat)nf;
+		df.setMinimumFractionDigits(4);
+		if (!prof.getPrintmatrices().equals("html")) {
+			if (prof.getPrintali()) {
+				System.out.println(">" + seq1ID + " " + seq2ID + " " + df.format(score));
+				System.out.println(seq1ID + ": " + seq1);
+				System.out.println(seq2ID + ": " + seq2);
+			} else {
+				System.out.println(seq1ID + " " + seq2ID + " " + df.format(score));
+			}
+		}
+		else {
+			if (prof.getPrintali()) {
+				System.out.println(">" + seq1ID + " " + seq2ID + " " + df.format(score) + "<br>");
+				System.out.println(seq1ID + ": " + seq1 + "<br>");
+				System.out.println(seq2ID + ": " + seq2 + "<br>");
+			} else {
+				System.out.println(seq1ID + " " + seq2ID + " " + df.format(score) + "<br>");
+			}
 		}
 	}
-	
+
 }

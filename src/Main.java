@@ -83,10 +83,24 @@ public class Main {
 		} else {
 			prof.setPrintmatrices("");
 		}
+		if (options.has("check")) {
+			prof.setCheck(true);
+		}
+		else {
+			prof.setCheck(false);
+		}
 
 		JLoader loader = new JLoader(prof.getPairs(), prof.getSeqlib());
 		loader.loadPairFile();
 		loader.loadSeqLibFile();
+		
+		
+		if (prof.getPrintmatrices().equals("txt")) {
+			 Matrix.printMatriceTxt(prof.getMatrix());
+		} else if (prof.getPrintmatrices().equals("html")) {
+			Matrix.printMatriceHtml(prof.getMatrix());
+		}
+		
 		for (int i = 0; i < loader.getPairLength(); i++) {
 			sequ1 = loader.retrieveSeqBin(loader.pairs[i][0], loader.sequences)
 					.split(":");
@@ -95,11 +109,6 @@ public class Main {
 			int[] seq1 = c.convertSeq(sequ1[1]);
 			int[] seq2 = c.convertSeq(sequ2[1]);
 			
-			if (prof.getPrintmatrices().equals("txt")) {
-				 Matrix.printMatriceTxt(prof.getMatrix());
-			} else if (prof.getPrintmatrices().equals("html")) {
-				Matrix.printMatriceHtml(prof.getMatrix());
-			}
 			
 			if (prof.getMode().equals("global")) {
 				GlobalAligner al = new GlobalAligner(prof, seq1, seq2,
@@ -119,6 +128,11 @@ public class Main {
 				GotohAnswer ga = new GotohAnswer();
 				ga = al.alignPair();
 				ga.printAlignment();
+				if(prof.isCheck()) {
+					if(ga.getScore() != al.getCheckScore()) {
+						System.out.println("#check false");
+					}
+				}
 			}
 			
 		}

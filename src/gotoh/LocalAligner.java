@@ -9,6 +9,7 @@ public class LocalAligner extends Aligner {
 	private int[] seq1, seq2;
 	public double[][] score;
 	private double[][] ins, del;
+	private double checkScore = 0;
 	double[] max = { 0, 0, 0 };
 	private LinkedList<int[]> tracebackList;
 	private String seq1ID, seq2ID;
@@ -72,11 +73,14 @@ public class LocalAligner extends Aligner {
 			int[] res = { x, y };
 			tracebackList.push(res);
 			if (score[x][y] == ins[x][y]) {
+				checkScore -= profile.getGopen();
 				trace(x - 1, y);
 			} else if (score[x][y] == del[x][y]) {
 				trace(x, y - 1);
+				checkScore -= profile.getGopen();
 			} else {
 				trace(x - 1, y - 1);
+				checkScore -= profile.getMatrixScore(seq1[x - 1], seq2[y - 1]);
 			}
 		}
 	}
@@ -126,7 +130,7 @@ public class LocalAligner extends Aligner {
 		for (int i = prev[1]; i < seq2.length; i++) {
 			result[1] += Character.toString(REVERSE[(char) seq2[i]]);
 			result[0] += "-";
-		}		
+		}
 		return result;
 	}
 
@@ -150,7 +154,11 @@ public class LocalAligner extends Aligner {
 
 		GotohAnswer result = new GotohAnswer(seq1ID, seq2ID, sresult[0],
 				sresult[1], max[2], profile);
-//		System.out.println(seq1ID + " " + seq2ID + " " + max[2]);
+		// System.out.println(seq1ID + " " + seq2ID + " " + max[2]);
 		return result;
+	}
+
+	public double getCheckScore() {
+		return this.checkScore;
 	}
 }
