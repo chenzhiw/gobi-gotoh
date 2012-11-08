@@ -56,13 +56,13 @@ public class FreeshiftAligner extends Aligner {
 						+ profile.getMatrixScore(seq1[x - 1], seq2[y - 1]);
 				score[x][y] = Math.max(temp, Math.max(ins[x][y], del[x][y]));
 				// save the max; we need that for traceback (?)
-				if (x == seq1.length || y == seq2.length) {
-					if (score[x][y] >= max[2]) {
-						max[0] = x;
-						max[1] = y;
-						max[2] = score[x][y];
-					}
-				}
+				// if (x == seq1.length || y == seq2.length) {
+				// if (score[x][y] >= max[2]) {
+				// max[0] = x;
+				// max[1] = y;
+				// max[2] = score[x][y];
+				// }
+				// }
 			}
 		}
 	}
@@ -176,7 +176,24 @@ public class FreeshiftAligner extends Aligner {
 	public GotohAnswer alignPair() {
 		initialize();
 		align();
-		trace((int) max[0], (int) max[1]);
+		
+		for(int i = 0; i < seq1.length; i++) { // check last row for max
+			if(score[i][seq2.length] >= max[2]) {
+				max[0] = i;
+				max[1] = seq2.length;
+				max[2] = score[i][seq2.length];
+			}
+		}
+		
+		for(int i = 0; i < seq2.length; i++) { // check last column for max
+			if(score[seq1.length][i] >= max[2]) {
+				max[0] = seq1.length;
+				max[1] = i;
+				max[2] = score[seq1.length][i];
+			}
+		}
+		
+		trace((int) max[0] - 1, (int) max[1] - 1);
 		String[] sresult = new String[2];
 		sresult = interpretTraceback();
 

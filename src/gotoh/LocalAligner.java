@@ -58,8 +58,8 @@ public class LocalAligner extends Aligner {
 						Math.max(ins[x][y], del[x][y]));
 				// save the max; we need that for traceback (?)
 				if (score[x][y] >= max[2]) {
-					max[0] = x;
-					max[1] = y;
+					max[0] = x - 1;
+					max[1] = y - 1;
 					max[2] = score[x][y];
 				}
 			}
