@@ -1,6 +1,5 @@
 package gotoh;
 
-import static resources.Aa.*;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;

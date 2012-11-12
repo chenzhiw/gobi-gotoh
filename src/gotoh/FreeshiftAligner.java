@@ -31,13 +31,13 @@ public class FreeshiftAligner extends Aligner {
 		score[0][0] = 0;
 		for (int i = 1; i < seq1.length + 1; i++) {
 			score[i][0] = 0;
-			del[i][0] = 0;
+			del[i][0] = Double.NEGATIVE_INFINITY;
 		}
 		for (int i = 1; i < seq2.length + 1; i++) {
 			score[0][i] = 0;
-			ins[0][i] = 0;
+			ins[0][i] = Double.NEGATIVE_INFINITY;
 		}
-		ins[0][0] = del[0][0] = 0;
+		ins[0][0] = del[0][0] = Double.NEGATIVE_INFINITY;
 
 	}
 
@@ -111,7 +111,12 @@ public class FreeshiftAligner extends Aligner {
 		result[0] = result[1] = "";
 		int[] temp = new int[2];
 		int[] prev = new int[2];
-		prev = tracebackList.pop();
+		if (tracebackList.isEmpty()) {
+			prev[0] = (int) max[0];
+			prev[1] = (int) max[1];
+		} else {
+			prev = tracebackList.pop();
+		}
 		// this element has y=0, so I have to align every x before
 		// prev[0],prev[1] with gaps, or x=0, so the other way round
 		if (prev[0] > prev[1]) {
@@ -125,9 +130,15 @@ public class FreeshiftAligner extends Aligner {
 				result[0] += "-";
 			}
 		}
-		temp = tracebackList.pop();
-		result[0] += Character.toString(REVERSE[(char) seq1[temp[0] - 1]]);
-		result[1] += Character.toString(REVERSE[(char) seq2[temp[1] - 1]]);
+		if (!tracebackList.isEmpty()) {
+			temp = tracebackList.pop();
+			result[0] += Character.toString(REVERSE[(char) seq1[temp[0] - 1]]);
+			result[1] += Character.toString(REVERSE[(char) seq2[temp[1] - 1]]);
+		} else {
+			result[0] += Character.toString(REVERSE[(char) seq1[prev[0] - 1]]);
+			result[1] += Character.toString(REVERSE[(char) seq2[prev[1] - 1]]);
+		}
+
 		while (!tracebackList.isEmpty()) {
 			temp = tracebackList.pop();
 			if (temp[0] == prev[0]) {
@@ -148,6 +159,7 @@ public class FreeshiftAligner extends Aligner {
 		}
 		// now we are at the end of the freeshift; it remains to recover the
 		// portion of the alignment that is parallel with the y axis
+
 		if (prev[0] < prev[1]) {
 			for (int i = prev[0]; i <= seq1.length; i++) {
 				result[0] += Character.toString(REVERSE[(char) seq1[i - 1]]);
@@ -159,6 +171,7 @@ public class FreeshiftAligner extends Aligner {
 				result[0] += "-";
 			}
 		}
+
 		return result;
 	}
 
@@ -176,23 +189,23 @@ public class FreeshiftAligner extends Aligner {
 	public GotohAnswer alignPair() {
 		initialize();
 		align();
-		
-		for(int i = 0; i < seq1.length; i++) { // check last row for max
-			if(score[i][seq2.length] >= max[2]) {
+
+		for (int i = 0; i < seq1.length; i++) { // check last row for max
+			if (score[i][seq2.length] >= max[2]) {
 				max[0] = i;
 				max[1] = seq2.length;
 				max[2] = score[i][seq2.length];
 			}
 		}
-		
-		for(int i = 0; i < seq2.length; i++) { // check last column for max
-			if(score[seq1.length][i] >= max[2]) {
+
+		for (int i = 0; i < seq2.length; i++) { // check last column for max
+			if (score[seq1.length][i] >= max[2]) {
 				max[0] = seq1.length;
 				max[1] = i;
 				max[2] = score[seq1.length][i];
 			}
 		}
-		
+
 		trace((int) max[0] - 1, (int) max[1] - 1);
 		String[] sresult = new String[2];
 		sresult = interpretTraceback();
