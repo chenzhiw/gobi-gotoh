@@ -1,3 +1,4 @@
+import gotoh.Aligner;
 import gotoh.FreeshiftAligner;
 import gotoh.GlobalAligner;
 import gotoh.GotohAnswer;
@@ -46,8 +47,13 @@ public class Main {
 				.withOptionalArg().ofType(String.class);
 		parser.accepts("check",
 				"the algorithm now checks the score with the alignment");
+		parser.accepts("h", "show help");
 
 		OptionSet options = parser.parse(args);
+
+		if (options.has("h")) {
+			parser.printHelpOn(System.out);
+		}
 
 		if (options.has("pairs")) {
 			prof.setPairs((String) options.valueOf("pairs"));
@@ -106,32 +112,25 @@ public class Main {
 					.split(":");
 			int[] seq1 = c.convertSeq(sequ1[1]);
 			int[] seq2 = c.convertSeq(sequ2[1]);
+			Aligner al = new Aligner();
 
 			if (prof.getMode().equals("global")) {
-				GlobalAligner al = new GlobalAligner(prof, seq1, seq2,
-						sequ1[0], sequ2[0]);
-				GotohAnswer ga = new GotohAnswer();
-				ga = al.alignPair();
-				ga.printAlignment();
+				al = new GlobalAligner(prof, seq1, seq2, sequ1[0], sequ2[0]);
 			} else if (prof.getMode().equals("local")) {
-				LocalAligner al = new LocalAligner(prof, seq1, seq2, sequ1[0],
-						sequ2[0]);
-				GotohAnswer ga = new GotohAnswer();
-				ga = al.alignPair();
-				ga.printAlignment();
+				al = new LocalAligner(prof, seq1, seq2, sequ1[0], sequ2[0]);
+
 			} else {
-				FreeshiftAligner al = new FreeshiftAligner(prof, seq1, seq2,
-						sequ1[0], sequ2[0]);
-				GotohAnswer ga = new GotohAnswer();
-				ga = al.alignPair();
-				ga.printAlignment();
-				if (prof.isCheck()) {
-					if (ga.getScore() != al.getCheckScore()) {
-						System.out.println("#check false");
-					}
+				al = new FreeshiftAligner(prof, seq1, seq2, sequ1[0], sequ2[0]);
+			}
+			GotohAnswer ga = new GotohAnswer();
+			ga = al.alignPair();
+			al.printMatrices();
+			ga.printAlignment();
+			if (prof.isCheck()) {
+				if (ga.getScore() != al.getCheckScore()) {
+					System.out.println("#check false");
 				}
 			}
-
 		}
 		if (prof.getPrintmatrices().equals("html")) {
 			System.out.println("</body>");

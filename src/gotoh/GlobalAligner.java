@@ -5,24 +5,17 @@ import static resources.Aa.REVERSE;
 import java.util.LinkedList;
 
 public class GlobalAligner extends Aligner {
-	private GotohProfile profile;
-	private String seq1ID, seq2ID;
-	private int[] seq1, seq2;
-	public double[][] score;
-	private double checkScore = 0;
-	private double[][] ins, del;
-	private LinkedList<int[]> tracebackList;
 
 	public GlobalAligner(GotohProfile profile, int[] seq1, int[] seq2,
 			String seq1ID, String seq2ID) {
-		this.profile = profile;
-		this.seq1 = seq1;
-		this.seq2 = seq2;
-		this.seq1ID = seq1ID;
-		this.seq2ID = seq2ID;
-		this.score = new double[seq1.length + 1][seq2.length + 1];
-		this.ins = new double[seq1.length + 1][seq2.length + 1];
-		this.del = new double[seq1.length + 1][seq2.length + 1];
+		super.profile = profile;
+		super.seq1 = seq1;
+		super.seq2 = seq2;
+		super.seq1ID = seq1ID;
+		super.seq2ID = seq2ID;
+		super.score = new double[seq1.length + 1][seq2.length + 1];
+		super.ins = new double[seq1.length + 1][seq2.length + 1];
+		super.del = new double[seq1.length + 1][seq2.length + 1];
 		tracebackList = new LinkedList<int[]>();
 	}
 
@@ -40,7 +33,7 @@ public class GlobalAligner extends Aligner {
 	}
 
 	/**
-	 * this function aligns the two sequences globally
+	 * super function aligns the two sequences globally
 	 */
 	public void align() {
 		for (int x = 1; x <= seq1.length; x++) {
@@ -51,7 +44,8 @@ public class GlobalAligner extends Aligner {
 				del[x][y] = Math.max(score[x][y - 1] + w1, del[x][y - 1]
 						+ profile.getGextend());
 				double temp = score[x - 1][y - 1]
-						+ profile.getMatrixScore(seq1[x - 1], seq2[y - 1]);
+						+ profile.getMatrixScore(profile.colIndex[seq1[x - 1]],
+								profile.rowIndex[seq2[y - 1]]);
 				score[x][y] = Math.max(temp, Math.max(ins[x][y], del[x][y]));
 			}
 		}
@@ -68,15 +62,19 @@ public class GlobalAligner extends Aligner {
 							* (k - 1) + profile.getGopen();
 					if (isInEpsilon(diff, score[x][y]) && k < y) {
 						int[] res = { x - k, y };
-						checkScore += profile.getMatrixScore(seq1[x - k], seq2[y])
-								+ profile.getGextend() * (k - 1)
+						checkScore += profile.getMatrixScore(seq1[x - k],
+								seq2[y])
+								+ profile.getGextend()
+								* (k - 1)
 								+ profile.getGopen();
 						tracebackList.push(res);
 						k++;
 					} else {
 						int[] res = { x - k, y };
-						checkScore += profile.getMatrixScore(seq1[x - k], seq2[y])
-								+ profile.getGextend() * (k - 1)
+						checkScore += profile.getMatrixScore(seq1[x - k],
+								seq2[y])
+								+ profile.getGextend()
+								* (k - 1)
 								+ profile.getGopen();
 						tracebackList.push(res);
 						found = true;
@@ -93,15 +91,19 @@ public class GlobalAligner extends Aligner {
 							* (k - 1) + profile.getGopen();
 					if (isInEpsilon(diff, score[x][y]) && k < x) {
 						int[] res = { x, y - k };
-						checkScore += profile.getMatrixScore(seq1[x], seq2[y - k])
-								+ profile.getGextend() * (k - 1)
+						checkScore += profile.getMatrixScore(seq1[x], seq2[y
+								- k])
+								+ profile.getGextend()
+								* (k - 1)
 								+ profile.getGopen();
 						tracebackList.push(res);
 						k++;
 					} else {
 						int[] res = { x, y - k };
-						checkScore += profile.getMatrixScore(seq1[x], seq2[y - k])
-								+ profile.getGextend() * (k - 1)
+						checkScore += profile.getMatrixScore(seq1[x], seq2[y
+								- k])
+								+ profile.getGextend()
+								* (k - 1)
 								+ profile.getGopen();
 						tracebackList.push(res);
 						found = true;
@@ -213,6 +215,6 @@ public class GlobalAligner extends Aligner {
 	}
 
 	private double getCheck() {
-		return this.checkScore;
+		return super.checkScore;
 	}
 }

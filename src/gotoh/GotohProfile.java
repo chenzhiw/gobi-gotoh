@@ -1,8 +1,14 @@
 package gotoh;
 
+import java.io.IOException;
+
+import resources.Aa;
+import resources.MatrixInteractive;
+
 public class GotohProfile {
 	private String matrixName, pairfile, seqlibfile;
 	private double gopen, gextend;
+	public int[] rowIndex, colIndex;
 	private String mode, printmatrices;
 	private boolean check, printali;
 	public double[][] matrix;
@@ -18,6 +24,8 @@ public class GotohProfile {
 		printali = false;
 		printmatrices = "";
 		check = false;
+		rowIndex = Aa.defaultOrder;
+		colIndex = Aa.defaultOrder;
 	}
 
 	public String getMatrixName() {
@@ -26,16 +34,14 @@ public class GotohProfile {
 
 	public void setMatrix(String matrixName) {
 		this.matrixName = matrixName;
-		if (matrixName.equals("dayhoff"))
-			this.matrix = (double[][]) resources.Matrix.dayhoff.clone();
-		else if (matrixName.equals("threader"))
-			this.matrix = (double[][]) resources.Matrix.threader.clone();
-		else if (matrixName.equals("blakeCohen"))
-			this.matrix = (double[][]) resources.Matrix.blakeCohen.clone();
-		else if (matrixName.equals("blosum50"))
-			this.matrix = (double[][]) resources.Matrix.blosum50.clone();
-		else
-			this.matrix = (double[][]) resources.Matrix.pam250.clone();
+		try {
+			MatrixInteractive maInt = new MatrixInteractive(matrixName);
+			this.matrix = maInt.getMatrix();
+			this.rowIndex = maInt.getRowIndex();
+			this.colIndex = maInt.getColIndex();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public String getPairs() {
