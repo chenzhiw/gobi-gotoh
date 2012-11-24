@@ -1,8 +1,11 @@
 package gotoh;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
 
 import resources.Aa;
+import resources.Matrix;
 import resources.MatrixInteractive;
 
 public class GotohProfile {
@@ -16,16 +19,15 @@ public class GotohProfile {
 	// defaults!!
 	public GotohProfile() {
 		matrixName = "dayhoff";
-		matrix = new double[21][21];
-		this.matrix = (double[][]) resources.Matrix.dayhoff.clone();
 		gopen = -12;
 		gextend = -1;
 		mode = "freeshift";
 		printali = false;
 		printmatrices = "";
 		check = false;
-		rowIndex = Aa.defaultOrder;
-		colIndex = Aa.defaultOrder;
+		rowIndex = MatrixInteractive.readIndex("ARNDCQEGHILKMFPSTWYV");
+		colIndex = MatrixInteractive.readIndex("ARNDCQEGHILKMFPSTWYV");
+		matrix = Matrix.dayhoff();
 	}
 
 	public String getMatrixName() {
@@ -113,10 +115,9 @@ public class GotohProfile {
 	}
 
 	public double getMatrixScore(int x, int y) {
-		if (x < y)
+		if (matrix[x][y] == 0)
 			return matrix[y][x];
-		else
-			return matrix[x][y];
+		return matrix[x][y];
 	}
 
 	public double[][] getMatrix() {

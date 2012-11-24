@@ -46,7 +46,7 @@ public class MatrixInteractive {
 		}
 	}
 
-	private int[] readIndex(String indexLine) {
+	public static int[] readIndex(String indexLine) {
 		int[] findIndex = new int[20];
 		for (int i = 0; i < indexLine.length(); i++) {
 			findIndex[i] = Aa.getIntRepresentation(String

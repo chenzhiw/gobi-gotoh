@@ -72,6 +72,9 @@ public class Converter {
 			case 86:
 				result[i] = V;
 				continue;
+			case 45:
+				result[i] = -1;
+				continue;
 			// default: result[i] = Integer.MIN_VALUE;
 			}
 		}

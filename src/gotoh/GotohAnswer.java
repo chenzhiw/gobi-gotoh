@@ -1,6 +1,5 @@
 package gotoh;
 
-
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Locale;
@@ -66,31 +65,35 @@ public class GotohAnswer {
 
 	public void printAlignment() {
 		NumberFormat nf = NumberFormat.getNumberInstance(Locale.ENGLISH);
-		DecimalFormat df = (DecimalFormat)nf;
+		DecimalFormat df = (DecimalFormat) nf;
 		df.setMinimumFractionDigits(4);
-		if (!prof.getPrintmatrices().equals("html")) {
+		if (prof.getPrintmatrices().equals("html")) {
 			System.out.println("<!DOCTYPE html PUBLIC \"...\">");
 			System.out.println("<html>");
 			System.out.println("\t<head>");
-			System.out.println("&nbsp;" + "&nbsp;" + "&nbsp;" + "&nbsp;" + "</head>");
-			System.out.println("&nbsp;" + "&nbsp;" + "&nbsp;" + "&nbsp;" + "<body>"
-					+ "<code>");
+			System.out.println("&nbsp;" + "&nbsp;" + "&nbsp;" + "&nbsp;"
+					+ "</head>");
+			System.out.println("&nbsp;" + "&nbsp;" + "&nbsp;" + "&nbsp;"
+					+ "<body>" + "<code>");
 			if (prof.getPrintali()) {
-				System.out.println(">" + seq1ID + " " + seq2ID + " " + df.format(score) + "<br>");
+				System.out.println(">" + seq1ID + " " + seq2ID + " "
+						+ df.format(score) + "<br>");
 				System.out.println(seq1ID + ": " + seq1 + "<br>");
 				System.out.println(seq2ID + ": " + seq2 + "<br>");
 			} else {
-				System.out.println(seq1ID + " " + seq2ID + " " + df.format(score) + "<br>");
+				System.out.println(seq1ID + " " + seq2ID + " "
+						+ df.format(score) + "<br>");
 			}
 			System.out.println("</code");
-		}
-		else {
+		} else {
 			if (prof.getPrintali()) {
-				System.out.println(">" + seq1ID + " " + seq2ID + " " + df.format(score) + "<br>");
-				System.out.println(seq1ID + ": " + seq1 + "<br>");
-				System.out.println(seq2ID + ": " + seq2 + "<br>");
+				System.out.println(">" + seq1ID + " " + seq2ID + " "
+						+ df.format(score));
+				System.out.println(seq1ID + ": " + seq1);
+				System.out.println(seq2ID + ": " + seq2);
 			} else {
-				System.out.println(seq1ID + " " + seq2ID + " " + df.format(score) + "<br>");
+				System.out.println(seq1ID + " " + seq2ID + " "
+						+ df.format(score));
 			}
 		}
 	}

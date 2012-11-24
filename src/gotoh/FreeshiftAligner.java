@@ -2,7 +2,11 @@ package gotoh;
 
 import static resources.Aa.REVERSE;
 
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.LinkedList;
+
+import resources.Aa;
 
 public class FreeshiftAligner extends Aligner {
 
@@ -34,7 +38,7 @@ public class FreeshiftAligner extends Aligner {
 	}
 
 	/**
-	 * super function aligns the two sequences globally
+	 * super function aligns the two sequences
 	 */
 	public void align() {
 		for (int x = 1; x <= seq1.length; x++) {
@@ -48,20 +52,18 @@ public class FreeshiftAligner extends Aligner {
 						+ profile.getMatrixScore(profile.colIndex[seq1[x - 1]],
 								profile.rowIndex[seq2[y - 1]]);
 				score[x][y] = Math.max(temp, Math.max(ins[x][y], del[x][y]));
-				// save the max; we need that for traceback (?)
-				// if (x == seq1.length || y == seq2.length) {
-				// if (score[x][y] >= max[2]) {
-				// max[0] = x;
-				// max[1] = y;
-				// max[2] = score[x][y];
-				// }
-				// }
 			}
 		}
 	}
 
+	private static final double epsilon = 0.0001d;
+
+	private static boolean isInEpsilon(double a, double b) {
+		return (a > (b - epsilon)) && (a < (b + epsilon));
+	}
+
 	public void trace(int x, int y) {
-		if (y == 0 || x == 0) {
+		if (y <= 0 || x <= 0) {
 
 		} else {
 			int[] res = { x, y };
@@ -123,11 +125,9 @@ public class FreeshiftAligner extends Aligner {
 				result[0] += "-";
 			}
 		}
-		if (!tracebackList.isEmpty()) {
-			temp = tracebackList.pop();
-			result[0] += Character.toString(REVERSE[(char) seq1[temp[0] - 1]]);
-			result[1] += Character.toString(REVERSE[(char) seq2[temp[1] - 1]]);
-		} else {
+
+		// dont miss the first pair!
+		if (prev[0] != 0 && prev[1] != 0) {
 			result[0] += Character.toString(REVERSE[(char) seq1[prev[0] - 1]]);
 			result[1] += Character.toString(REVERSE[(char) seq2[prev[1] - 1]]);
 		}
@@ -150,6 +150,12 @@ public class FreeshiftAligner extends Aligner {
 			}
 			prev = temp;
 		}
+
+		if (prev[0] != seq1.length && prev[1] != seq2.length) {
+			result[0] += Character.toString(REVERSE[(char) seq1[prev[0]]]);
+			result[1] += Character.toString(REVERSE[(char) seq2[prev[1]]]);
+		}
+
 		// now we are at the end of the freeshift; it remains to recover the
 		// portion of the alignment that is parallel with the y axis
 
@@ -182,31 +188,83 @@ public class FreeshiftAligner extends Aligner {
 	public GotohAnswer alignPair() {
 		initialize();
 		align();
-
-		for (int i = 0; i < seq1.length; i++) { // check last row for max
-			if (score[i][seq2.length] >= max[2]) {
+		double colScore, rowScore; // for debugging purposes only
+		for (int i = 0; i < seq1.length + 1; i++) { // check last row for max
+			rowScore = score[i][seq2.length];
+			if (score[i][seq2.length] > max[2] || isInEpsilon(rowScore, max[2])) {
 				max[0] = i;
 				max[1] = seq2.length;
 				max[2] = score[i][seq2.length];
 			}
 		}
 
-		for (int i = 0; i < seq2.length; i++) { // check last column for max
-			if (score[seq1.length][i] >= max[2]) {
+		for (int i = 0; i < seq2.length + 1; i++) { // check last column for max
+			colScore = score[seq1.length][i];
+			if (score[seq1.length][i] > max[2] || isInEpsilon(colScore, max[2])) {
 				max[0] = seq1.length;
 				max[1] = i;
 				max[2] = score[seq1.length][i];
 			}
 		}
-
+		if (max[0] == 0)
+			max[0]++;
+		if (max[1] == 0)
+			max[1]++;
 		trace((int) max[0] - 1, (int) max[1] - 1);
 		String[] sresult = new String[2];
 		sresult = interpretTraceback();
+		calculateCheckScore(sresult);
 
 		GotohAnswer result = new GotohAnswer(seq1ID, seq2ID, sresult[0],
 				sresult[1], max[2], profile);
 		// System.out.println(seq1ID + " " + seq2ID + " " + max[2]);
 		return result;
+	}
+
+	private void calculateCheckScore(String[] sresult) {
+		char[] charSeq1 = sresult[0].toCharArray();
+		char[] charSeq2 = sresult[1].toCharArray();
+		checkScore = 0;
+
+		int start = 0, end = 0;
+
+		for (int i = 0; i < charSeq1.length; i++) {
+			while (charSeq1[i] == 45 || charSeq2[i] == 45) {
+				i++;
+			}
+			start = i;
+			break;
+		}
+
+		for (int i = charSeq1.length - 1; i > 0; i--) {
+			while (charSeq1[i] == 45 || charSeq2[i] == 45) {
+				i--;
+			}
+			end = i + 1;
+			break;
+		}
+
+		for (int i = start; i < end; i++) {
+			if (charSeq1[i] == 45) {
+				checkScore += profile.getGopen();
+				while (i < end && charSeq1[i] == 45) {
+					checkScore += profile.getGextend();
+					i++;
+				}
+			} else if (charSeq2[i] == 45) {
+				checkScore += profile.getGopen();
+				while (i < end && charSeq2[i] == 45) {
+					checkScore += profile.getGextend();
+					i++;
+				}
+			} else {
+				checkScore += profile.getMatrixScore(profile.colIndex[Aa
+						.getIntRepresentation(String.valueOf(charSeq1[i]))],
+						profile.rowIndex[Aa.getIntRepresentation(String
+								.valueOf(charSeq2[i]))]);
+			}
+		}
+
 	}
 
 	public double getCheckScore() {

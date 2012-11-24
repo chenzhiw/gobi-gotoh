@@ -74,9 +74,13 @@ public class Main {
 
 		if (options.has("go")) {
 			prof.setGopen((Double) options.valueOf("go"));
+			if (prof.getGopen() > 0)
+				prof.setGopen(-prof.getGopen());
 		}
 		if (options.has("ge")) {
 			prof.setGextend((Double) options.valueOf("ge"));
+			if(prof.getGextend() > 0)
+				prof.setGextend(-prof.getGextend());
 		}
 		if (options.has("mode")) {
 			prof.setMode((String) options.valueOf("mode"));
@@ -126,17 +130,17 @@ public class Main {
 			ga = al.alignPair();
 			al.printMatrices();
 			ga.printAlignment();
-			if (prof.isCheck()) {
-				if (ga.getScore() != al.getCheckScore()) {
-					System.out.println("#check false");
-				}
-			}
+//			if (prof.isCheck()) {
+//				if (ga.getScore() != al.getCheckScore()) {
+//					ga.printAlignment();
+//				}
+//			}
 		}
 		if (prof.getPrintmatrices().equals("html")) {
 			System.out.println("</body>");
 			System.out.println("</html>");
 		}
-
+//		System.out.println("end");
 	}
 
 }

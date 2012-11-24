@@ -4,6 +4,8 @@ import static resources.Aa.REVERSE;
 
 import java.util.LinkedList;
 
+import resources.Aa;
+
 public class GlobalAligner extends Aligner {
 
 	public GlobalAligner(GotohProfile profile, int[] seq1, int[] seq2,
@@ -56,64 +58,39 @@ public class GlobalAligner extends Aligner {
 			if (score[x][y] == ins[x][y]) {
 				// find the x-k,y position where the gap was opened
 				boolean found = false;
-				int k = 1;
 				while (!found) {
-					double diff = score[x - k][y] + profile.getGextend()
-							* (k - 1) + profile.getGopen();
-					if (isInEpsilon(diff, score[x][y]) && k < y) {
-						int[] res = { x - k, y };
-						checkScore += profile.getMatrixScore(seq1[x - k],
-								seq2[y])
-								+ profile.getGextend()
-								* (k - 1)
-								+ profile.getGopen();
+					if (ins[x - 1][y] + profile.getGextend() == ins[x][y]) {
+						int[] res = { x - 1, y };
 						tracebackList.push(res);
-						k++;
+						x--;
+						continue;
 					} else {
-						int[] res = { x - k, y };
-						checkScore += profile.getMatrixScore(seq1[x - k],
-								seq2[y])
-								+ profile.getGextend()
-								* (k - 1)
-								+ profile.getGopen();
+						int[] res = { x - 1, y };
+						x--;
 						tracebackList.push(res);
 						found = true;
-						x -= k;
 					}
-					continue;
 				}
 			} else if (score[x][y] == del[x][y]) {
-				// find the x-k,y position where the gap was opened
+				// find the x,y-k position where the gap was opened
 				boolean found = false;
-				int k = 1;
 				while (!found) {
-					double diff = score[x][y - k] + profile.getGextend()
-							* (k - 1) + profile.getGopen();
-					if (isInEpsilon(diff, score[x][y]) && k < x) {
-						int[] res = { x, y - k };
-						checkScore += profile.getMatrixScore(seq1[x], seq2[y
-								- k])
-								+ profile.getGextend()
-								* (k - 1)
-								+ profile.getGopen();
+					if (del[x][y - 1] + profile.getGextend() == del[x][y]) {
+						int[] res = { x, y - 1 };
 						tracebackList.push(res);
-						k++;
+						y--;
+						continue;
 					} else {
-						int[] res = { x, y - k };
-						checkScore += profile.getMatrixScore(seq1[x], seq2[y
-								- k])
-								+ profile.getGextend()
-								* (k - 1)
-								+ profile.getGopen();
+						int[] res = { x, y - 1 };
+						y--;
 						tracebackList.push(res);
 						found = true;
-						y -= k;
 					}
-					continue;
 				}
 			} else {// that means we came from score[x-1][y-1]
 				int[] res = { x - 1, y - 1 };
-				checkScore += profile.getMatrixScore(seq1[x - 1], seq2[y - 1]);
+				// checkScore += profile.getMatrixScore(seq1[x - 1], seq2[y -
+				// 1]);
 				tracebackList.push(res);
 				x--;
 				y--;
@@ -132,18 +109,23 @@ public class GlobalAligner extends Aligner {
 		// global mode
 		while (prev[0] == 0 && prev[1] == 0)
 			prev = tracebackList.pop();
-		if (prev[0] > prev[1] && prev[1] == 0) {
-			for (int i = 1; i < prev[0]; i++) {
-				result[0] += Character.toString(REVERSE[(char) seq1[i - 1]]);
+
+		if (prev[0] == 0) {
+			for (int i = 0; i < prev[1]; i++) {
+				result[0] += "-";
+				result[1] += Character
+						.toString(REVERSE[(char) seq2[i]]);
+			}
+			prev = tracebackList.pop();
+		}
+		if (prev[1] == 0) {
+			for (int i = 0; i < prev[0]; i++) {
+				result[0] += Character
+						.toString(REVERSE[(char) seq1[i]]);
 				result[1] += "-";
 			}
-		} else if (prev[1] > prev[0] && prev[0] == 0) {
-			for (int i = 1; i < prev[1]; i++) {
-				result[1] += Character.toString(REVERSE[(char) seq2[i - 1]]);
-				result[0] += "-";
-			}
+			prev = tracebackList.pop();
 		}
-		prev = tracebackList.pop();
 		result[0] += Character.toString(REVERSE[(char) seq1[prev[0] - 1]]);
 		result[1] += Character.toString(REVERSE[(char) seq2[prev[1] - 1]]);
 		while (!tracebackList.isEmpty()) {
@@ -164,13 +146,17 @@ public class GlobalAligner extends Aligner {
 			}
 			prev = temp;
 		}
-		for (int i = prev[0] + 1; i <= seq1.length; i++) {
-			result[0] += Character.toString(REVERSE[(char) seq1[i - 1]]);
+		if (temp[0] < seq1.length && temp[1] < seq2.length) {
+			result[0] += Character.toString(REVERSE[(char) seq1[temp[0]]]);
+			result[1] += Character.toString(REVERSE[(char) seq2[temp[1]]]);
+		}
+		if (temp[0] < seq1.length && temp[1] >= seq2.length) {
+			result[0] += Character.toString(REVERSE[(char) seq1[temp[0]]]);
 			result[1] += "-";
 		}
-		for (int i = prev[1] + 1; i <= seq2.length; i++) {
-			result[1] += Character.toString(REVERSE[(char) seq2[i - 1]]);
+		if (temp[0] >= seq1.length && temp[1] < seq2.length) {
 			result[0] += "-";
+			result[1] += Character.toString(REVERSE[(char) seq2[temp[1]]]);
 		}
 		return result;
 	}
@@ -188,14 +174,10 @@ public class GlobalAligner extends Aligner {
 	public GotohAnswer alignPair() {
 		initialize();
 		align();
-		trace(seq1.length - 1, seq2.length - 1);
+		trace(seq1.length, seq2.length);
 		String[] sresult = new String[2];
-		// while (!tracebackList.isEmpty()) {
-		// int[] p = new int[2];
-		// p = tracebackList.pop();
-		// System.out.println(p[0] + ", " + p[1]);
-		// }
 		sresult = interpretTraceback();
+		calculateCheckScore(sresult);
 		if (sresult[0].startsWith("-") && sresult[1].startsWith("-")) {
 			sresult[0] = sresult[0].substring(1);
 			sresult[1] = sresult[1].substring(1);
@@ -208,13 +190,41 @@ public class GlobalAligner extends Aligner {
 		return result;
 	}
 
+	private void calculateCheckScore(String[] sresult) {
+		char[] charSeq1 = sresult[0].toCharArray();
+		char[] charSeq2 = sresult[1].toCharArray();
+		checkScore = 0;
+
+		for (int i = 0; i < charSeq1.length; i++) {
+			if (charSeq1[i] == 45) {
+				checkScore += profile.getGopen();
+				while (i < charSeq1.length && charSeq1[i] == 45) {
+					checkScore += profile.getGextend();
+					i++;
+				}
+			} else if (charSeq2[i] == 45) {
+				checkScore += profile.getGopen();
+				while (i < charSeq1.length && charSeq1[i] == 45) {
+					checkScore += profile.getGextend();
+					i++;
+				}
+			} else {
+				checkScore += profile.getMatrixScore(profile.colIndex[Aa
+						.getIntRepresentation(String.valueOf(charSeq1[i]))],
+						profile.rowIndex[Aa.getIntRepresentation(String
+								.valueOf(charSeq2[i]))]);
+			}
+		}
+
+	}
+
 	private static final double epsilon = 0.0001d;
 
 	private static boolean isInEpsilon(double a, double b) {
 		return (a > (b - epsilon)) && (a < (b + epsilon));
 	}
 
-	private double getCheck() {
+	public double getCheckScore() {
 		return super.checkScore;
 	}
 }
