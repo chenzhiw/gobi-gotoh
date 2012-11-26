@@ -4,8 +4,8 @@ import static resources.Aa.REVERSE;
 
 import java.util.LinkedList;
 
-import loader.Converter;
 import resources.Aa;
+import resources.Matrix;
 
 public class LocalAligner extends Aligner {
 	public LocalAligner(GotohProfile profile, int[] seq1, int[] seq2,
@@ -52,8 +52,6 @@ public class LocalAligner extends Aligner {
 				double w1 = profile.getGextend() + profile.getGopen();
 				ins[x][y] = Math.max(score[x - 1][y] + w1, ins[x - 1][y]
 						+ profile.getGextend());
-				double tScore = score[x - 1][y];
-				double tInsPrev = ins[x - 1][y];
 				ins[x][y] = Math.max(ins[x][y], 0.0);
 				del[x][y] = Math.max(score[x][y - 1] + w1, del[x][y - 1]
 						+ profile.getGextend());
@@ -112,7 +110,8 @@ public class LocalAligner extends Aligner {
 				}
 			} else {// that means we came from score[x-1][y-1]
 				int[] res = { x - 1, y - 1 };
-				// checkScore += profile.getMatrixScore(seq1[x - 1], seq2[y -
+				// checkScore += profile.getMatrixScore(seq1[x - 1], seq2[y
+				// -
 				// 1]);
 				tracebackList.push(res);
 				x--;
@@ -133,6 +132,7 @@ public class LocalAligner extends Aligner {
 		} else {
 			prev = tracebackList.pop();
 		}
+
 		// super element has y=0, so I have to align every x before
 		// prev[0],prev[1] with gaps, or x=0, so the other way round
 
@@ -172,13 +172,12 @@ public class LocalAligner extends Aligner {
 
 		// now we are at the end of the freeshift; it remains to recover the
 		// portion of the alignment that is parallel with the y axis
-
-		for (int i = prev[0]; i <= seq1.length; i++) {
+		for (int i = prev[0] + 2; i <= seq1.length; i++) {
 			result[0] += Character.toString(REVERSE[(char) seq1[i - 1]]);
 			result[1] += "-";
 		}
 
-		for (int i = prev[1]; i <= seq2.length; i++) {
+		for (int i = prev[1] + 2; i <= seq2.length; i++) {
 			result[1] += Character.toString(REVERSE[(char) seq2[i - 1]]);
 			result[0] += "-";
 		}
@@ -202,12 +201,22 @@ public class LocalAligner extends Aligner {
 		align();
 		trace((int) max[0], (int) max[1]);
 		String[] sresult = new String[2];
+		String[] emergencySresult = new String[2];
+		LinkedList<int[]> traceCopy = Matrix.deepCopy(tracebackList);
+
 		sresult = interpretTraceback();
-		// 1j2xA00:
-		// GP-----------------------------LDVQVTEDAVRRYLTR---KPMTTKDLLKKFQTKKTGLSSEQTVNVLAQILKRLNPERKMINDKMHFHFSLK
-		// 1p4xA01:
-		// --MKYNNHDKIRDFIIIEAYMFRFKKKVKPEVDMTIKEFILLTYLFHQQENTLPFKKIVSDLCYKQSDLVQHIKVLVKHSYISKV---RSKIDERNTY-----
 		checkScore = calcLocalScore(sresult[0], sresult[1]);
+		emergencySresult = sresult;
+
+		while (!isInEpsilon(checkScore, max[2])) {
+			traceCopy.pop();
+			tracebackList = Matrix.deepCopy(traceCopy);
+			sresult = interpretTraceback();
+			checkScore = calcLocalScore(sresult[0], sresult[1]);
+			if (traceCopy.size() == 0)
+				return new GotohAnswer(seq1ID, seq2ID, emergencySresult[0],
+						emergencySresult[1], max[2], profile);
+		}
 		GotohAnswer result = new GotohAnswer(seq1ID, seq2ID, sresult[0],
 				sresult[1], max[2], profile);
 		// System.out.println(seq1ID + " " + seq2ID + " " + max[2]);
@@ -239,7 +248,7 @@ public class LocalAligner extends Aligner {
 				break;
 			}
 		}
-//		System.out.println("first = " + first + ", last = " + last);
+		// System.out.println("first = " + first + ", last = " + last);
 		boolean gapopened = false;
 		double addedvalue = 0;
 		for (int i = first; i <= last; i++) {
@@ -267,7 +276,7 @@ public class LocalAligner extends Aligner {
 				debugScore += addedvalue;
 			}
 		}
-//		System.err.println(debugScore + debugGaps);
+		// System.err.println(debugScore + debugGaps);
 		return debugScore + debugGaps;
 	}
 

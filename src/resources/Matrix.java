@@ -2,6 +2,8 @@ package resources;
 
 import static resources.Aa.REVERSE;
 
+import java.util.LinkedList;
+
 public class Matrix {
 
 	public static void printMatriceTxt(double[][] matrix) {
@@ -86,5 +88,15 @@ public class Matrix {
 			}
 		}
 		return matrix;
+	}
+	
+	public static LinkedList<int[]> deepCopy(LinkedList<int[]> input) {
+		LinkedList<int[]> output = new LinkedList<int[]>();
+		for(int i = input.size() - 1; i > -1; i--) {
+			int[] d = input.get(i);
+			int[] f = {d[0], d[1]};
+			output.addFirst(f);
+		}
+		return output;
 	}
 }

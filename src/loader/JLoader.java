@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.LinkedList;
 
 /**
  * this class handles all operations that have to do with reading files; it
@@ -48,9 +49,19 @@ public class JLoader {
 			pairLength = countLines(pairFile);
 			pairs = new String[pairLength][2];
 			int i = 0;
+			LinkedList<String> lines = new LinkedList<String>();
 			while ((strLine = br.readLine()) != null) {
-				pairs[i][0] = strLine.split(" ")[0];
-				pairs[i][1] = strLine.split(" ")[1];
+				lines.add(strLine);
+			}
+			for(String line: lines) {
+				if(line.length() < 10) {
+					break;
+				}
+				if(line.equals(null)) {
+					break;
+				}
+				pairs[i][0] = line.split(" ")[0];
+				pairs[i][1] = line.split(" ")[1];
 				i++;
 			}
 			in.close();

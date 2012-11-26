@@ -63,40 +63,51 @@ public class FreeshiftAligner extends Aligner {
 	}
 
 	public void trace(int x, int y) {
-		if (y <= 0 || x <= 0) {
+		int[] tres = { x, y };
+		tracebackList.push(tres);
+		while (x > 0 && y > 0) {
+			if (isInEpsilon(score[x][y], ins[x][y])) {
+				// find the x-k,y position where the gap was opened
 
-		} else {
-			int[] res = { x, y };
-			checkScore += profile.getMatrixScore(seq1[x], seq2[y]);
-			tracebackList.push(res);
-			if (score[x][y] == ins[x][y]) {
-				int k = 1;
-				while (score[x - k][y] + profile.getGextend() * k
-						+ profile.getGopen() != score[x][y]) {
-					int[] resn = { x - k, y };
-					checkScore += profile.getMatrixScore(seq1[x - k], seq2[y])
-							+ profile.getGextend() * k + profile.getGopen();
-					tracebackList.push(resn);
-					if (x - k == 0)
-						break;
-					k++;
+				boolean found = false;
+				while (!found) {
+					if (ins[x - 1][y] + profile.getGextend() == ins[x][y]) {
+						int[] res = { x - 1, y };
+						tracebackList.push(res);
+						x--;
+						continue;
+					} else {
+						int[] res = { x - 1, y };
+						x--;
+						tracebackList.push(res);
+						found = true;
+					}
 				}
-				trace(x - k, y);
-			} else if (score[x][y] == del[x][y]) {
-				int k = 1;
-				while (score[x][y - k] + profile.getGextend() * k
-						+ profile.getGopen() != score[x][y]) {
-					int[] resn = { x, y - k };
-					checkScore += profile.getMatrixScore(seq1[x], seq2[y - k])
-							+ profile.getGextend() * k + profile.getGopen();
-					tracebackList.push(resn);
-					if (y - k == 0)
-						break;
-					k++;
+			} else if (isInEpsilon(score[x][y], del[x][y])) {
+				// find the x,y-k position where the gap was opened
+				boolean found = false;
+				while (!found) {
+					if (del[x][y - 1] + profile.getGextend() == del[x][y]) {
+						int[] res = { x, y - 1 };
+						tracebackList.push(res);
+						y--;
+						continue;
+					} else {
+						int[] res = { x, y - 1 };
+						y--;
+						tracebackList.push(res);
+						found = true;
+					}
 				}
-				trace(x, y - k);
-			} else {
-				trace(x - 1, y - 1);
+			} else {// that means we came from score[x-1][y-1]
+				int[] res = { x - 1, y - 1 };
+				// checkScore += profile.getMatrixScore(seq1[x - 1], seq2[y
+				// -
+				// 1]);
+				tracebackList.push(res);
+				x--;
+				y--;
+				continue;
 			}
 		}
 	}
@@ -112,24 +123,18 @@ public class FreeshiftAligner extends Aligner {
 		} else {
 			prev = tracebackList.pop();
 		}
+
 		// super element has y=0, so I have to align every x before
 		// prev[0],prev[1] with gaps, or x=0, so the other way round
-		if (prev[0] > prev[1]) {
-			for (int i = 1; i < prev[0]; i++) {
-				result[0] += Character.toString(REVERSE[(char) seq1[i - 1]]);
-				result[1] += "-";
-			}
-		} else {
-			for (int i = 1; i < prev[1]; i++) {
-				result[1] += Character.toString(REVERSE[(char) seq2[i - 1]]);
-				result[0] += "-";
-			}
+
+		for (int i = 0; i < prev[0]; i++) {
+			result[0] += Character.toString(REVERSE[(char) seq1[i]]);
+			result[1] += "-";
 		}
 
-		// dont miss the first pair!
-		if (prev[0] != 0 && prev[1] != 0) {
-			result[0] += Character.toString(REVERSE[(char) seq1[prev[0] - 1]]);
-			result[1] += Character.toString(REVERSE[(char) seq2[prev[1] - 1]]);
+		for (int i = 0; i < prev[1]; i++) {
+			result[1] += Character.toString(REVERSE[(char) seq2[i]]);
+			result[0] += "-";
 		}
 
 		while (!tracebackList.isEmpty()) {
@@ -158,17 +163,14 @@ public class FreeshiftAligner extends Aligner {
 
 		// now we are at the end of the freeshift; it remains to recover the
 		// portion of the alignment that is parallel with the y axis
+		for (int i = prev[0] + 2; i <= seq1.length; i++) {
+			result[0] += Character.toString(REVERSE[(char) seq1[i - 1]]);
+			result[1] += "-";
+		}
 
-		if (prev[0] < prev[1]) {
-			for (int i = prev[0]; i <= seq1.length; i++) {
-				result[0] += Character.toString(REVERSE[(char) seq1[i - 1]]);
-				result[1] += "-";
-			}
-		} else {
-			for (int i = prev[1]; i <= seq2.length; i++) {
-				result[1] += Character.toString(REVERSE[(char) seq2[i - 1]]);
-				result[0] += "-";
-			}
+		for (int i = prev[1] + 2; i <= seq2.length; i++) {
+			result[1] += Character.toString(REVERSE[(char) seq2[i - 1]]);
+			result[0] += "-";
 		}
 
 		return result;
@@ -188,7 +190,7 @@ public class FreeshiftAligner extends Aligner {
 	public GotohAnswer alignPair() {
 		initialize();
 		align();
-		double colScore, rowScore; // for debugging purposes only
+		double colScore, rowScore;
 		for (int i = 0; i < seq1.length + 1; i++) { // check last row for max
 			rowScore = score[i][seq2.length];
 			if (score[i][seq2.length] > max[2] || isInEpsilon(rowScore, max[2])) {
@@ -213,7 +215,7 @@ public class FreeshiftAligner extends Aligner {
 		trace((int) max[0] - 1, (int) max[1] - 1);
 		String[] sresult = new String[2];
 		sresult = interpretTraceback();
-		calculateCheckScore(sresult);
+		checkScore = calcCheckScore(sresult[0], sresult[1]);
 
 		GotohAnswer result = new GotohAnswer(seq1ID, seq2ID, sresult[0],
 				sresult[1], max[2], profile);
@@ -221,50 +223,62 @@ public class FreeshiftAligner extends Aligner {
 		return result;
 	}
 
-	private void calculateCheckScore(String[] sresult) {
-		char[] charSeq1 = sresult[0].toCharArray();
-		char[] charSeq2 = sresult[1].toCharArray();
+	public double calcCheckScore(String a, String b) {
 		checkScore = 0;
+		// look for first and last (mis-)match
+		// This idea came from Paul Kerbs.
+		// It should be performing better. thanks!
+		int length = a.length();
+		int first = 0;
+		int last = 0;
 
-		int start = 0, end = 0;
+		double debugScore = 0;
+		double debugGaps = 0;
 
-		for (int i = 0; i < charSeq1.length; i++) {
-			while (charSeq1[i] == 45 || charSeq2[i] == 45) {
-				i++;
+		// find first (mis-)match
+		for (int i = 0; i < length - 1; i++) {
+			if (a.charAt(i) != '-' && b.charAt(i) != '-') {
+				first = i;
+				break;
 			}
-			start = i;
-			break;
 		}
-
-		for (int i = charSeq1.length - 1; i > 0; i--) {
-			while (charSeq1[i] == 45 || charSeq2[i] == 45) {
-				i--;
+		// find last (mis-)match
+		for (int i = length - 1; i > 0; i--) {
+			if (a.charAt(i) != '-' && b.charAt(i) != '-') {
+				last = i;
+				break;
 			}
-			end = i + 1;
-			break;
 		}
-
-		for (int i = start; i < end; i++) {
-			if (charSeq1[i] == 45) {
-				checkScore += profile.getGopen();
-				while (i < end && charSeq1[i] == 45) {
-					checkScore += profile.getGextend();
-					i++;
-				}
-			} else if (charSeq2[i] == 45) {
-				checkScore += profile.getGopen();
-				while (i < end && charSeq2[i] == 45) {
-					checkScore += profile.getGextend();
-					i++;
+		// System.out.println("first = " + first + ", last = " + last);
+		boolean gapopened = false;
+		double addedvalue = 0;
+		for (int i = first; i <= last; i++) {
+			addedvalue = 0;
+			char x = a.charAt(i);
+			char y = b.charAt(i);
+			if (x == '-' || y == '-') { // deletion
+				if (gapopened) {
+					addedvalue = profile.getGextend();
+					debugGaps += addedvalue;
+				} else { // insertion
+					gapopened = true;
+					addedvalue = profile.getGopen() + profile.getGextend();
+					debugGaps += addedvalue;
 				}
 			} else {
-				checkScore += profile.getMatrixScore(profile.colIndex[Aa
-						.getIntRepresentation(String.valueOf(charSeq1[i]))],
-						profile.rowIndex[Aa.getIntRepresentation(String
-								.valueOf(charSeq2[i]))]);
+				gapopened = false;
+				int ix = profile.colIndex[Aa.getIntRepresentation(String
+						.valueOf(x))];
+				int iy = profile.rowIndex[Aa.getIntRepresentation(String
+						.valueOf(y))];
+				addedvalue = profile.getMatrixScore(ix, iy);
+				// System.out.println(String.valueOf(x) + String.valueOf(y) +
+				// " " + addedvalue);
+				debugScore += addedvalue;
 			}
 		}
-
+		// System.err.println(debugScore + debugGaps);
+		return debugScore + debugGaps;
 	}
 
 	public double getCheckScore() {

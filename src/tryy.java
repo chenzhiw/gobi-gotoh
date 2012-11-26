@@ -1,6 +1,6 @@
+import gotoh.FreeshiftAligner;
 import gotoh.GotohAnswer;
 import gotoh.GotohProfile;
-import gotoh.LocalAligner;
 import loader.Converter;
 
 public class tryy {
@@ -16,25 +16,39 @@ public class tryy {
 		String[] sequ1 = new String[2];
 		String[] sequ2 = new String[2];
 
-//		1j2xA00: GPLDVQV---------------------TEDAVRR--YLTRKPMTTKDLLKKFQTKKTGLSSEQTVNVLAQILKRLNPERKMINDKMHFSLK-------------
-//		1s29A00: -------GSHPLSSENKQKLQKQVEFYFSDVNVQRDIFLKGKAENAEGFV-SLETLLTFKRVNSVTTDVKEVVEAIRPSEKLV---------LSEDGLVRRRDPL
-		sequ1 = "1j2xA00: GPLDVQVTEDAVRRYLTRKPMTTKDLLKKFQTKKTGLSSEQTVNVLAQILKRLNPERKMINDKMHFSLK"
+		// 1b8iA00:
+		// FYPW---------------MARQTYTRYQTLELEKEFHTNHYLTRRRRIEMAHAL-------SLTERQIKIWFQNRRMKLKKE
+		// 1wh5A00:
+		// ----GSSGSSGSSAEAGGGIRKRHRTKFTAEQKERMLALAERIGWRIQRQDDEVIQRFCQETGVPRQVLKVWLHNNKHSGPSS
+		sequ1 = "1b8iA00: FYPWMARQTYTRYQTLELEKEFHTNHYLTRRRRIEMAHALSLTERQIKIWFQNRRMKLKKE"
 				.split(": ");
-		sequ2 = "1s29A00: GSHPLSSENKQKLQKQVEFYFSDVNVQRDIFLKGKAENAEGFVSLETLLTFKRVNSVTTDVKEVVEAIRPSEKLVLSEDGLVRRRDPL"
+		sequ2 = "1wh5A00: GSSGSSGSSAEAGGGIRKRHRTKFTAEQKERMLALAERIGWRIQRQDDEVIQRFCQETGVPRQVLKVWLHNNKHSGPSS"
 				.split(": ");
 		int[] seq1 = c.convertSeq(sequ1[1]);
 		int[] seq2 = c.convertSeq(sequ2[1]);
-		LocalAligner al = new LocalAligner(prof, seq1, seq2, sequ1[0], sequ2[0]);
+		FreeshiftAligner al = new FreeshiftAligner(prof, seq1, seq2, sequ1[0],
+				sequ2[0]);
 		GotohAnswer ga = new GotohAnswer();
 		ga = al.alignPair();
+		// al.printMatrices();
 		ga.printAlignment();
 		System.out.println(al.getCheckScore());
+
+		double wert = al.calcCheckScore(
+				"FYPW---------------MARQTYTRYQTLELEKEFHTNHYLTRRRRIEMAHAL-------SLTERQIKIWFQNRRMKLKKE",
+				"----GSSGSSGSSAEAGGGIRKRHRTKFTAEQKERMLALAERIGWRIQRQDDEVIQRFCQETGVPRQVLKVWLHNNKHSGPSS");
+		System.err.println(wert);
+
+		if (prof.getPrintmatrices().equals("html")) {
+			System.out.println("</body>");
+			System.out.println("</html>");
+		}
 
 		// NumberFormat nf = NumberFormat.getNumberInstance(Locale.ENGLISH);
 		// DecimalFormat df = (DecimalFormat)nf;
 		// df.setMinimumFractionDigits(4);
 		// // DecimalFormat df = new DecimalFormat("#.####");
-		// System.out.println(df.format(5.92384752084));
+		// System.out.println("PAFVNKLWSMVNDKSNEKFIHWSTSGESIVVPNRERF-----------".length());
 	}
 
 }

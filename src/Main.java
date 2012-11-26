@@ -79,7 +79,7 @@ public class Main {
 		}
 		if (options.has("ge")) {
 			prof.setGextend((Double) options.valueOf("ge"));
-			if(prof.getGextend() > 0)
+			if (prof.getGextend() > 0)
 				prof.setGextend(-prof.getGextend());
 		}
 		if (options.has("mode")) {
@@ -110,9 +110,9 @@ public class Main {
 		}
 
 		for (int i = 0; i < loader.getPairLength(); i++) {
-			sequ1 = loader.retrieveSeqBin(loader.pairs[i][0], loader.sequences)
+			sequ1 = loader.retrieveSeqMan(loader.pairs[i][0], loader.sequences)
 					.split(":");
-			sequ2 = loader.retrieveSeqBin(loader.pairs[i][1], loader.sequences)
+			sequ2 = loader.retrieveSeqMan(loader.pairs[i][1], loader.sequences)
 					.split(":");
 			int[] seq1 = c.convertSeq(sequ1[1]);
 			int[] seq2 = c.convertSeq(sequ2[1]);
@@ -129,18 +129,27 @@ public class Main {
 			GotohAnswer ga = new GotohAnswer();
 			ga = al.alignPair();
 			al.printMatrices();
-			ga.printAlignment();
-//			if (prof.isCheck()) {
-//				if (ga.getScore() != al.getCheckScore()) {
-//					ga.printAlignment();
-//				}
-//			}
+//			ga.printAlignment();
+			if (prof.isCheck()) {
+				if (!isInEpsilon(ga.getScore(),al.getCheckScore())) {
+					System.err.println("Error at alignment: check score false: " + al.getCheckScore());
+					ga.printAlignment();
+//					break;
+				}
+			}
 		}
 		if (prof.getPrintmatrices().equals("html")) {
 			System.out.println("</body>");
 			System.out.println("</html>");
 		}
-//		System.out.println("end");
+		// System.out.println("end");
+	}
+	
+	
+	private static final double epsilon = 0.0001d;
+
+	private static boolean isInEpsilon(double a, double b) {
+		return (a > (b - epsilon)) && (a < (b + epsilon));
 	}
 
 }
