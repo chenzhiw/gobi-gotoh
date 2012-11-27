@@ -129,12 +129,14 @@ public class Main {
 			GotohAnswer ga = new GotohAnswer();
 			ga = al.alignPair();
 			al.printMatrices();
-//			ga.printAlignment();
+			ga.printAlignment();
 			if (prof.isCheck()) {
-				if (!isInEpsilon(ga.getScore(),al.getCheckScore())) {
-					System.err.println("Error at alignment: check score false: " + al.getCheckScore());
-					ga.printAlignment();
-//					break;
+				if (!isInEpsilon(ga.getScore(), al.getCheckScore())) {
+					System.err
+							.println("Error at alignment: check score false: "
+									+ al.getCheckScore());
+					// ga.printAlignment();
+					// break;
 				}
 			}
 		}
@@ -144,8 +146,7 @@ public class Main {
 		}
 		// System.out.println("end");
 	}
-	
-	
+
 	private static final double epsilon = 0.0001d;
 
 	private static boolean isInEpsilon(double a, double b) {

@@ -177,7 +177,7 @@ public class GlobalAligner extends Aligner {
 		trace(seq1.length, seq2.length);
 		String[] sresult = new String[2];
 		sresult = interpretTraceback();
-		calculateCheckScore(sresult);
+		checkScore = calcCheckScore(sresult[0], sresult[1]);
 		if (sresult[0].startsWith("-") && sresult[1].startsWith("-")) {
 			sresult[0] = sresult[0].substring(1);
 			sresult[1] = sresult[1].substring(1);
@@ -190,32 +190,71 @@ public class GlobalAligner extends Aligner {
 		return result;
 	}
 
-	private void calculateCheckScore(String[] sresult) {
-		char[] charSeq1 = sresult[0].toCharArray();
-		char[] charSeq2 = sresult[1].toCharArray();
-		checkScore = 0;
+	public double calcCheckScore(String a, String b) {
+		// look for first and last (mis-)match
+		// This idea came from Paul Kerbs.
+		// It should be performing better. thanks!
+		int first = 0;
+		int last = a.length() - 1;
 
-		for (int i = 0; i < charSeq1.length; i++) {
-			if (charSeq1[i] == 45) {
-				checkScore += profile.getGopen();
-				while (i < charSeq1.length && charSeq1[i] == 45) {
-					checkScore += profile.getGextend();
-					i++;
-				}
-			} else if (charSeq2[i] == 45) {
-				checkScore += profile.getGopen();
-				while (i < charSeq1.length && charSeq1[i] == 45) {
-					checkScore += profile.getGextend();
-					i++;
+		double debugScore = 0;
+		double debugGaps = 0;
+
+		// find first (mis-)match or gap; after all it's a freeshift!
+		int i = 0;
+//		if (a.charAt(0) == '-') {
+//			while (a.charAt(i) == '-')
+//				i++;
+//			first = i;
+//		} else {
+//			while (b.charAt(i) == '-')
+//				i++;
+//			first = i;
+//		}
+//		// find last (mis-)match or gap
+//		i = a.length() - 1;
+//		if (a.charAt(a.length() - 1) == '-') {
+//			while (a.charAt(i) == '-')
+//				i--;
+//			last = i;
+//		} else {
+//			while (b.charAt(i) == '-')
+//				i--;
+//			last = i;
+//		}
+//
+//		if (first == 0 && last == 0) {
+//			return 0;
+//		}
+
+		// System.out.println("first = " + first + ", last = " + last);
+		boolean gapopened = false;
+		double addedvalue = 0;
+		for (i = first; i <= last; i++) {
+			addedvalue = 0;
+			char x = a.charAt(i);
+			char y = b.charAt(i);
+			if (x == '-' || y == '-') { // deletion
+				if (gapopened) {
+					addedvalue = profile.getGextend();
+					debugGaps += addedvalue;
+				} else { // insertion
+					gapopened = true;
+					addedvalue = profile.getGopen() + profile.getGextend();
+					debugGaps += addedvalue;
 				}
 			} else {
-				checkScore += profile.getMatrixScore(profile.colIndex[Aa
-						.getIntRepresentation(String.valueOf(charSeq1[i]))],
-						profile.rowIndex[Aa.getIntRepresentation(String
-								.valueOf(charSeq2[i]))]);
+				gapopened = false;
+				int ix = profile.colIndex[Aa.getIntRepresentation(String
+						.valueOf(x))];
+				int iy = profile.rowIndex[Aa.getIntRepresentation(String
+						.valueOf(y))];
+				addedvalue = profile.getMatrixScore(ix, iy);
+				debugScore += addedvalue;
 			}
 		}
-
+		// System.err.println(debugScore + debugGaps);
+		return debugScore + debugGaps;
 	}
 
 	private static final double epsilon = 0.0001d;

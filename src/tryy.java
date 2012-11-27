@@ -7,8 +7,8 @@ public class tryy {
 	public static void main(String[] args) {
 		GotohProfile prof = new GotohProfile();
 		prof.setMatrix("matr/dayhoff.mat");
-		// prof.setGopen(-9);
-		// prof.setGextend(-4);
+//		prof.setGopen(-9);
+//		prof.setGextend(-4);
 		prof.setPrintmatrices("txt");
 		prof.setPrintali(true);
 		Converter c = new Converter();
@@ -16,10 +16,8 @@ public class tryy {
 		String[] sequ1 = new String[2];
 		String[] sequ2 = new String[2];
 
-		// 1b8iA00:
-		// FYPW---------------MARQTYTRYQTLELEKEFHTNHYLTRRRRIEMAHAL-------SLTERQIKIWFQNRRMKLKKE
-		// 1wh5A00:
-		// ----GSSGSSGSSAEAGGGIRKRHRTKFTAEQKERMLALAERIGWRIQRQDDEVIQRFCQETGVPRQVLKVWLHNNKHSGPSS
+//		1ixdA00: GSSGSSGLAMPPGNSHGLEVGSLAEVKENPPFYGVIRWIGQPPGLNEVLAGLELEDECAGCTDGTFRGTRYFTCALKKALFVKLKSCRPDSRFASLQPSGPSS
+//		1bu1A00: IIVVALYDYEAIHHEDLSFQKGDQMVVLEESGEWWKARSLATRKEGYIPSNYVARV
 		sequ1 = "1b8iA00: FYPWMARQTYTRYQTLELEKEFHTNHYLTRRRRIEMAHALSLTERQIKIWFQNRRMKLKKE"
 				.split(": ");
 		sequ2 = "1wh5A00: GSSGSSGSSAEAGGGIRKRHRTKFTAEQKERMLALAERIGWRIQRQDDEVIQRFCQETGVPRQVLKVWLHNNKHSGPSS"
@@ -30,19 +28,12 @@ public class tryy {
 				sequ2[0]);
 		GotohAnswer ga = new GotohAnswer();
 		ga = al.alignPair();
-		// al.printMatrices();
 		ga.printAlignment();
 		System.out.println(al.getCheckScore());
 
-		double wert = al.calcCheckScore(
-				"FYPW---------------MARQTYTRYQTLELEKEFHTNHYLTRRRRIEMAHAL-------SLTERQIKIWFQNRRMKLKKE",
-				"----GSSGSSGSSAEAGGGIRKRHRTKFTAEQKERMLALAERIGWRIQRQDDEVIQRFCQETGVPRQVLKVWLHNNKHSGPSS");
-		System.err.println(wert);
-
-		if (prof.getPrintmatrices().equals("html")) {
-			System.out.println("</body>");
-			System.out.println("</html>");
-		}
+//		String s1 = "MARQTYTRYQTLELEKEFHTNHYLTRRRRIEMAHALSLTERQIKIWFQNRRMKLKKE";
+//		String s2 = "IRKRHRTKFTAEQKERMLALAERIGWRIQRQDDEVIGVPRQVLKVWLHNNKHSGPSS";
+//		System.out.println(al.calcCheckScore(s1, s2));
 
 		// NumberFormat nf = NumberFormat.getNumberInstance(Locale.ENGLISH);
 		// DecimalFormat df = (DecimalFormat)nf;

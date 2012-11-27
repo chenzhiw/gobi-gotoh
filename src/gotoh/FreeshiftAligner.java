@@ -156,19 +156,19 @@ public class FreeshiftAligner extends Aligner {
 			prev = temp;
 		}
 
-		if (prev[0] != seq1.length && prev[1] != seq2.length) {
+		if (prev[0] < seq1.length && prev[1] < seq2.length) {
 			result[0] += Character.toString(REVERSE[(char) seq1[prev[0]]]);
 			result[1] += Character.toString(REVERSE[(char) seq2[prev[1]]]);
 		}
 
 		// now we are at the end of the freeshift; it remains to recover the
 		// portion of the alignment that is parallel with the y axis
-		for (int i = prev[0] + 2; i <= seq1.length; i++) {
+		for (int i = prev[0] + 1; i <= seq1.length; i++) {
 			result[0] += Character.toString(REVERSE[(char) seq1[i - 1]]);
 			result[1] += "-";
 		}
 
-		for (int i = prev[1] + 2; i <= seq2.length; i++) {
+		for (int i = prev[1] + 1; i <= seq2.length; i++) {
 			result[1] += Character.toString(REVERSE[(char) seq2[i - 1]]);
 			result[0] += "-";
 		}
@@ -193,7 +193,8 @@ public class FreeshiftAligner extends Aligner {
 		double colScore, rowScore;
 		for (int i = 0; i < seq1.length + 1; i++) { // check last row for max
 			rowScore = score[i][seq2.length];
-			if (score[i][seq2.length] > max[2] || isInEpsilon(rowScore, max[2])) {
+			if (score[i][seq2.length] >= max[2]
+					|| isInEpsilon(rowScore, max[2])) {
 				max[0] = i;
 				max[1] = seq2.length;
 				max[2] = score[i][seq2.length];
@@ -202,17 +203,18 @@ public class FreeshiftAligner extends Aligner {
 
 		for (int i = 0; i < seq2.length + 1; i++) { // check last column for max
 			colScore = score[seq1.length][i];
-			if (score[seq1.length][i] > max[2] || isInEpsilon(colScore, max[2])) {
+			if (score[seq1.length][i] >= max[2]
+					|| isInEpsilon(colScore, max[2])) {
 				max[0] = seq1.length;
 				max[1] = i;
 				max[2] = score[seq1.length][i];
 			}
 		}
-		if (max[0] == 0)
-			max[0]++;
-		if (max[1] == 0)
-			max[1]++;
-		trace((int) max[0] - 1, (int) max[1] - 1);
+		// if (max[0] == 0)
+		// max[0]++;
+		// if (max[1] == 0)
+		// max[1]++;
+		trace((int) max[0], (int) max[1]);
 		String[] sresult = new String[2];
 		sresult = interpretTraceback();
 		checkScore = calcCheckScore(sresult[0], sresult[1]);
@@ -224,7 +226,8 @@ public class FreeshiftAligner extends Aligner {
 	}
 
 	public double calcCheckScore(String a, String b) {
-		checkScore = 0;
+		// System.out.println(a);
+		// System.out.println(b);
 		// look for first and last (mis-)match
 		// This idea came from Paul Kerbs.
 		// It should be performing better. thanks!
@@ -235,24 +238,37 @@ public class FreeshiftAligner extends Aligner {
 		double debugScore = 0;
 		double debugGaps = 0;
 
-		// find first (mis-)match
-		for (int i = 0; i < length - 1; i++) {
-			if (a.charAt(i) != '-' && b.charAt(i) != '-') {
-				first = i;
-				break;
-			}
+		// find first (mis-)match or gap; after all it's a freeshift!
+		int i = 0;
+		if (a.charAt(0) == '-') {
+			while (a.charAt(i) == '-')
+				i++;
+			first = i;
+		} else {
+			while (b.charAt(i) == '-')
+				i++;
+			first = i;
 		}
-		// find last (mis-)match
-		for (int i = length - 1; i > 0; i--) {
-			if (a.charAt(i) != '-' && b.charAt(i) != '-') {
-				last = i;
-				break;
-			}
+		// find last (mis-)match or gap
+		i = a.length() - 1;
+		if (a.charAt(a.length() - 1) == '-') {
+			while (a.charAt(i) == '-')
+				i--;
+			last = i;
+		} else {
+			while (b.charAt(i) == '-')
+				i--;
+			last = i;
 		}
+
+		if (first == 0 && last == 0) {
+			return 0;
+		}
+
 		// System.out.println("first = " + first + ", last = " + last);
 		boolean gapopened = false;
 		double addedvalue = 0;
-		for (int i = first; i <= last; i++) {
+		for (i = first; i <= last; i++) {
 			addedvalue = 0;
 			char x = a.charAt(i);
 			char y = b.charAt(i);
@@ -272,8 +288,6 @@ public class FreeshiftAligner extends Aligner {
 				int iy = profile.rowIndex[Aa.getIntRepresentation(String
 						.valueOf(y))];
 				addedvalue = profile.getMatrixScore(ix, iy);
-				// System.out.println(String.valueOf(x) + String.valueOf(y) +
-				// " " + addedvalue);
 				debugScore += addedvalue;
 			}
 		}
